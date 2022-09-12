@@ -286,5 +286,12 @@ ashuc1
 ashuc1
 ```
 
+## Container image management 
+
+### Build custom image to integrate app/source code 
+
+<img src="build.png">
+
+
 
 
