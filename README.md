@@ -293,5 +293,160 @@ ashuc1
 <img src="build.png">
 
 
+## Creating custom Docker images 
+
+### Python code to docker image 
+
+### python code 
+
+```
+import time
+
+while True:
+    print("Hello all , welcome to python..!!")
+    time.sleep(3)
+    print("Welcome to Mobileum..")
+    time.sleep(2)
+    print("Welcome to Containers ..!!")
+    print("______________________")
+    time.sleep(3)
+```
+
+
+### Dockerfile 
+
+```
+FROM python 
+# docker host will be download python image from Docker hub 
+LABEL name=ashutoshh
+LABEL email=ashutoshh@linux.com
+# Label is optional but you can use to write image Designer info 
+RUN mkdir /mycode 
+# RUN is for executing shell command during image creation time 
+COPY  mobi.py  /mycode/
+# copy code inside docker image 
+CMD ["python","/mycode/mobi.py"]
+# to set default process/program to this docker image 
+
+```
+
+### Understanding Dockerfile 
+
+<img src="dfile.png">
+
+### lets build image 
+
+```
+[ashu@mobi-dockerserver myimages]$ cd  pythoncode/
+[ashu@mobi-dockerserver pythoncode]$ ls
+Dockerfile  mobi.py
+[ashu@mobi-dockerserver pythoncode]$ docker build  -t   ashupython:v1  . 
+Sending build context to Docker daemon  3.072kB
+Step 1/6 : FROM python
+ ---> 4f9baf941f8e
+Step 2/6 : LABEL name=ashutoshh
+ ---> Running in 3c7996316223
+Removing intermediate container 3c7996316223
+ ---> db6e42b18833
+Step 3/6 : LABEL email=ashutos
+```
+
+### checking image 
+
+```
+[ashu@mobi-dockerserver pythoncode]$ docker images  |   grep -i ashu
+ashupython        v1        53ee4bfb3343   3 minutes ago        921MB
+[ashu@mobi-dockerserver pythoncode]$ 
+
+```
+
+### creating container from last image 
+
+```
+[ashu@mobi-dockerserver pythoncode]$ docker run -it -d  --name ashuc2 ashupython:v1  
+73f80b892808ccfe72f6a15e0bcd52135c742ca581997f8d6a3b6b3a89b008c3
+[ashu@mobi-dockerserver pythoncode]$ docker  ps
+CONTAINER ID   IMAGE                COMMAND                  CREATED          STATUS                  PORTS     NAMES
+068239824b78   sofiapython:1.1      "python /mycode/mobi…"   1 second ago     Up Less than a second             sofiac2
+1170f2cea2db   fernandopython:1.1   "python /mycode/mobi…"   3 seconds ago    Up 2 seconds                      fernando2
+bb8b8b34b907   nuno:1.1             "python /mycode/mobi…"   5 seconds ago    Up 3 seconds                      nuno1
+97cbed1ce1d6   filipe-python:1.1    "python /mycode/mobi…"   6 seconds ago    Up 5 seconds                      filipe_2
+73f80b892808   ashupython:v1        "python /mycode/mobi…"   8 seconds ago    Up 7 seconds                      ashuc2
+f91ad4da9e0b   ricardo-python:1.0   "python /code/mobi.py"   32 seconds ago   Up 32 seconds                     ricardo-python-1
+2388a3320cde   roy-python:0.0.1     "python /mycode/m.py"    45 seconds ago   Up 45 seconds                     roy
+58a4ab8de05b   rajeshpython:1.1     "python /mycode/mobi…"   5 minutes ago    Up 5 minutes                      rajc1
+[ashu@mobi-dockerserver pythoncode]$ 
+```
+
+### checking output of code 
+
+```
+[ashu@mobi-dockerserver pythoncode]$ docker  logs ashuc2 
+Hello all , welcome to python..!!
+Welcome to Mobileum..
+Welcome to Containers ..!!
+______________________
+```
+
+### creating new image with new changes 
+
+```
+[ashu@mobi-dockerserver myimages]$ ls
+javacode  pythoncode
+[ashu@mobi-dockerserver myimages]$ docker build  -t   ashupython:v2  pythoncode/
+Sending build context to Docker daemon  4.096kB
+Step 1/7 : FROM python
+ ---> 4f9baf941f8e
+Step 2/7 : LABEL name=ashutoshh
+ ---> Using cache
+ ---> db6e42b18833
+Step 3/7 : LABEL email=ashutoshh@linux.com
+ ---> Using cache
+
+```
+
+
+### final commands 
+
+```
+ 125  docker run -itd --name ashuc2 ashupython:v2 
+  126  docker run -itd --name ashuc3 ashupython:v2  python /mycode/hello.py
+```
+
+### New Dockerfile to Python code 
+
+```
+FROM oraclelinux:8.4 
+# docker host will be download python image from Docker hub 
+LABEL name=ashutoshh
+LABEL email=ashutoshh@linux.com
+# Label is optional but you can use to write image Designer info 
+RUN  yum install python3 -y 
+RUN mkdir /mycode 
+# RUN is for executing shell command during image creation time 
+COPY  mobi.py  /mycode/
+# copy code inside docker image 
+CMD ["python","/mycode/mobi.py"]
+# to set default process/program to this docker image 
+
+```
+
+### lets buid it 
+
+```
+docker build -t ashupython:v3  -f small.dockerfile  . 
+```
+
+### checking image size 
+
+```
+[root@mobi-dockerserver ~]# docker  images  |  grep -i ashu
+ashupython        v3        59b41d8eed51   10 seconds ago       442MB
+ashupython        v2        31dd9bde8463   42 minutes ago       921MB
+ashupython        v1        53ee4bfb3343   About an hour ago    921MB
+[root@mobi-dockerserver ~]# 
+
+
+```
 
 
