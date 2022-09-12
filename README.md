@@ -449,4 +449,40 @@ ashupython        v1        53ee4bfb3343   About an hour ago    921MB
 
 ```
 
+### Image registry in Docker to store images 
+
+<img src="reg.png">
+
+
+### image name format of docker hub 
+
+<img src="format.png">
+
+### demo 
+
+```
+[root@mobi-dockerserver ~]# docker pull mysql
+Using default tag: latest
+latest: Pulling from library/mysql
+492d84e496ea: Already exists 
+bbe20050901c: Pull complete 
+e3a5e171c2f8: Pull complete 
+c2cedd8aa061: Pull complete 
+d6a485af4cc9: Pull complete 
+ee16a57baf60: Pull complete 
+64bab9180d2a: Pull complete 
+c3aceb7e4f48: Pull complete 
+269002e5cf58: Pull complete 
+d5abeb1bd18e: Pull complete 
+cbd79da5fab6: Pull complete 
+Digest: sha256:cdf3b62d78d1bbb1d2bd6716895a84014e00716177cbb7e90f6c6a37a21dc796
+Status: Downloaded newer image for mysql:latest
+docker.io/library/mysql:latest
+[root@mobi-dockerserver ~]# 
+
+
+```
+
+
+
 
