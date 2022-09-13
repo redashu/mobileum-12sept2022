@@ -139,5 +139,216 @@ Oracle Linux 8 BaseOS Latest (x86_64)            52 MB/s |  49 MB     00:00
 
 ```
 
+### Solution of task 2 
+
+```
+FROM alpine
+LABEL name=ashutoshh
+RUN apk add python3 &&  mkdir /pycodes
+ADD https://raw.githubusercontent.com/redashu/pythonLang/main/while.py /pycodes/
+# COPY and add both are same keyword but add can take data from URL as well
+ENTRYPOINT python3  /pycodes/while.py 
+# CMD and Entrypoint are almost same 
+```
+
+## Image push & pull 
+
+<img src="reg.png">
+
+### tagging image in the format of docker hub 
+
+```
+[ashu@mobi-dockerserver pythoncode]$ docker  images  |   grep -i ashu
+ashualp                      pycodev1   40c5e132bb3b   16 minutes ago      55.8MB
+ashujava                     jdk11      a1906c97a8af   42 minutes ago      654MB
+ashujava                     v1         91bcde702cd4   About an hour ago   462MB
+ashupython                   v3         1913069ea063   19 hours ago        442MB
+ashupython                   v2         31dd9bde8463   20 hours ago        921MB
+ashupython                   v1         53ee4bfb3343   21 hours ago        921MB
+[ashu@mobi-dockerserver pythoncode]$ 
+[ashu@mobi-dockerserver pythoncode]$ docker  tag  ashupython:v3  docker.io/dockerashu/ashupyapp:checkv1  
+[ashu@mobi-dockerserver pythoncode]$ 
+
+
+```
+
+### login 
+
+```
+[ashu@mobi-dockerserver pythoncode]$ docker login -u dockerashu 
+Password: 
+WARNING! Your password will be stored unencrypted in /home/ashu/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+```
+
+### pushing image to docker hub 
+
+```
+[ashu@mobi-dockerserver pythoncode]$ docker  push  docker.io/dockerashu/ashupyapp:checkv1
+The push refers to repository [docker.io/dockerashu/ashupyapp]
+ac6947dbfb05: Pushed 
+ee514409e9e3: Pushed 
+deb5b63dc9cd: Pushed 
+2d3586eacb61: Mounted from pronojitroy/roy-python 
+checkv1: digest: sha256:e287f85882b19ead84462c2cdef8af0836b5c234a3d547f297a51b58f4bec14d size: 1156
+[ashu@mobi-dockerserver pythoncode]$ 
+```
+
+### docker logout 
+
+```
+[ashu@mobi-dockerserver pythoncode]$ docker logout 
+Removing login credentials for https://index.docker.io/v1/
+```
+
+## Docker instruction Scripting 
+
+<img src="compose.png">
+
+### compose installation 
+
+```
+[root@mobi-dockerserver ~]# curl -SL https://github.com/docker/compose/releases/download/v2.10.2/docker-compose-linux-x86_64 -o /usr/bin/docker-compose 
+  % Total    % Received % Xferd  Average Speed   Time    Time     Time  Current
+                                 Dload  Upload   Total   Spent    Left  Speed
+  0     0    0     0    0     0      0      0 --:--:-- --:--:-- --:--:--     0
+100 24.5M  100 24.5M    0     0  94.9M      0 --:--:-- --:--:-- --:--:--  184M
+[root@mobi-dockerserver ~]# chmod +x /usr/bin/docker-compose 
+[root@mobi-dockerserver ~]# 
+[root@mobi-dockerserver ~]# 
+
+
+```
+
+### checking 
+
+```
+[ashu@mobi-dockerserver pythoncode]$ docker-compose version 
+Docker Compose version v2.10.2
+```
+
+### compose file version 
+
+<img src="compose1.png">
+
+### Compose example 1 
+
+```
+version: '3.8' # compose file version 
+services: # number of application you want to manage 
+  ashuapp-frontend: 
+    image: alpine
+    container_name: ashuc1
+    command: ping fb.com
+
+```
+
+### lets run it 
+
+```
+[ashu@mobi-dockerserver myimages]$ ls
+ashu-compose  javacode  pythoncode
+[ashu@mobi-dockerserver myimages]$ cd  ashu-compose/
+[ashu@mobi-dockerserver ashu-compose]$ ls
+docker-compose.yaml
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose up -d
+[+] Running 2/2
+ ⠿ Network ashu-compose_default  Created                                                         0.1s
+ ⠿ Container ashuc1              Started                                                         0.6s
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose ps
+NAME                COMMAND             SERVICE             STATUS              PORTS
+ashuc1              "ping fb.com"       ashuapp-frontend    running             
+[ashu@mobi-dockerserver ashu-compose]$ 
+
+```
+
+### more compose commands 
+
+```
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose ps
+NAME                COMMAND             SERVICE             STATUS              PORTS
+ashuc1              "ping fb.com"       ashuapp-frontend    running             
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose stop 
+[+] Running 1/1
+ ⠿ Container ashuc1  Stopped                                                                    10.2s
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose ps
+NAME                COMMAND             SERVICE             STATUS              PORTS
+ashuc1              "ping fb.com"       ashuapp-frontend    exited (137)        
+[ashu@mobi-dockerserver ashu-compose]
+```
+
+### more commands
+
+```
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose ps
+NAME                COMMAND             SERVICE             STATUS              PORTS
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose create
+[+] Running 2/1
+ ⠿ Network ashu-compose_default  Created                                                         0.1s
+ ⠿ Container ashuc1              Created                                                         0.0s
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose ps
+NAME                COMMAND             SERVICE             STATUS              PORTS
+ashuc1              "ping fb.com"       ashuapp-frontend    created             
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose start
+[+] Running 1/1
+ ⠿ Container ashuc1  Started                                                                     0.5s
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose ps
+NAME                COMMAND             SERVICE             STATUS              PORTS
+ashuc1              "ping fb.com"       ashuapp-frontend    running             
+[ashu@mobi-dockerserver ashu-compose]$ 
+```
+
+### accessing container shell using compose 
+
+```
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose ps
+NAME                COMMAND             SERVICE             STATUS              PORTS
+ashuc1              "ping fb.com"       ashuapp-frontend    running             
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose exec  ashuapp-frontend  sh
+/ # whoami
+root
+/ # ls 
+bin    etc    lib    mnt    proc   run    srv    tmp    var
+dev    home   media  opt    root   sbin   sys    usr
+/ # exit
+[ashu@mobi-dockerserver ashu-compose]$ 
+```
+
+### Delete all app containers 
+
+```
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose down 
+[+] Running 0/1
+ ⠴ Container ashuc1  Stopping                                                                    8.6s
+
+```
+
+### Example 2 
+
+```
+version: '3.8' # compose file version 
+services: # number of application you want to manage 
+  ashu-pythonapp:
+    image: ashupyimg:v1 # image i want to build
+    build:  # calling image build instruction 
+      context: ../pythoncode # location of Dockerfile 
+      dockerfile: Dockerfile # name of dockerfile 
+    container_name: ashupyc1 
+    
+  ashuapp-frontend: 
+    image: alpine
+    container_name: ashuc1
+    command: ping fb.com
+
+```
+
+
+
+
+
+
 
 
