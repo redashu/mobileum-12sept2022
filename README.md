@@ -535,6 +535,124 @@ ashungc1            "/docker-entrypoint.…"   ashuwebapp          running      
  ⠿ Network ashu-compose_default  Removed                
 ```
 
+### Multi Bridge concept 
+
+```
+[root@mobi-dockerserver ~]# docker  network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+b301c26dcbbd   bridge    bridge    local
+9877e4991da4   host      host      local
+b1435c369c1d   none      null      local
+[root@mobi-dockerserver ~]# docker  network  create  ashubr1
+57f053abfea6eb7861e7d4fcdcdce9bdea64a205666717f18397a1096f821683
+[root@mobi-dockerserver ~]# docker  network ls
+NETWORK ID     NAME      DRIVER    SCOPE
+57f053abfea6   ashubr1   bridge    local
+b301c26dcbbd   bridge    bridge    local
+9877e4991da4   host      host      local
+b1435c369c1d   none      null      local
+[root@mobi-dockerserver ~]# docker network inspect  ashubr1
+[
+    {
+        "Name": "ashubr1",
+        "Id": "57f053abfea6eb7861e7d4fcdcdce9bdea64a205666717f18397a1096f821683",
+        "Created": "2022-09-13T14:06:09.369309789Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": {},
+            "Config": [
+                {
+                    "Subnet": "172.29.0.0/16",
+                    "Gateway": "172.29.0.1"
+                }
+            ]
+        },
+
+
+```
+
+### creating container in custom network bridge
+
+```
+ 143  docker network inspect  ashubr1
+  144  history 
+[root@mobi-dockerserver ~]# docker run -itd --name c1  --network ashubr1  -p 12344:80  nginx 
+Unable to find image 'nginx:latest' locally
+latest: Pulling from library/nginx
+31b3f1ad4ce1: Already exists 
+fd42b079d0f8: Already exists 
+30585fbbebc6: Already exists 
+18f4ffdd25f4: Already exists 
+9dc932c8fba2: Already exists 
+600c24b8ba39: Already exists 
+
+```
+
+### new yaml file with custom network bridge 
+
+```
+version: '3.8'
+networks: # to create network 
+  ashubr1: # name of network bridge 
+services:
+  ashuwebapp:
+    image: ashunginx:appv1 # image i want to build
+    build: # calling dockerfile to build image 
+      context: . 
+      dockerfile: Dockerfile
+    container_name: ashungc1 # name of container 
+    ports: # port forwarding rule 
+    - "1234:80"
+    networks: # to attach network to container 
+    - ashubr1
+
+```
+
+### compose network demo 
+
+```
+version: '3.8'
+networks: # to create network 
+  ashubr2: # name of network bridge
+  ashubr3: 
+services:
+  ashuapp0001: 
+    image: alpine
+    container_name: ashucc11
+    networks: 
+    - ashubr3 
+    command: ping fb.com 
+  ashuwebapp007:
+    image: ashunginx:appv1 # image i want to build
+    build: # calling dockerfile to build image 
+      context: . 
+      dockerfile: Dockerfile
+    container_name: ashungc1 # name of container 
+    ports: # port forwarding rule 
+    - "1234:80"
+    networks: # to attach network to container 
+    - ashubr2
+```
+
+====
+
+```
+[ashu@mobi-dockerserver webapps_ashu]$ docker-compose -f nginx.yaml  up -d 
+[+] Running 2/2
+ ⠿ ashuapp0001 Pulled                                                                            0.4s
+   ⠿ 213ec9aee27d Already exists                                                                 0.0s
+[+] Running 4/4
+ ⠿ Network webapps_ashu_ashubr2  Created                                                         0.0s
+ ⠿ Network webapps_ashu_ashubr3  Created                                                         0.0s
+ ⠿ Container ashucc11            Started                                                         0.8s
+ ⠿ Container ashungc1            Started     
+
+```
+
+
 
 
 
