@@ -437,6 +437,107 @@ PING 172.17.0.4 (172.17.0.4): 56 data bytes
 <img src="portf1.png">
 
 
+## Understanding webapp server 
+
+<img src="webapp.png">
+
+### sample webapp -- containerization 
+
+### clone source code 
+
+```
+git clone https://github.com/schoolofdevops/html-sample-app.git
+
+```
+
+### Dockerfile 
+
+```
+FROM nginx 
+# nginx server image from docker hub 
+LABEL name=ashutoshh
+COPY html-sample-app /usr/share/nginx/html/
+# COPY / ADD they always read .dockerignore file 
+# Note if we don't user CMD/Entrypoint then From image CMd/entrypoint will be
+# inherited 
+```
+### .dockerignore 
+
+```
+html-sample-app/.git
+html-sample-app/*.txt
+```
+
+### lets build docker image
+
+```
+[ashu@mobi-dockerserver webapps]$ ls -a
+.  ..  Dockerfile  .dockerignore  html-sample-app
+[ashu@mobi-dockerserver webapps]$ docker build -t  ashunginx:appv1  . 
+Sending build context to Docker daemon  2.099MB
+Step 1/3 : FROM nginx
+ ---> 2d389e545974
+Step 2/3 : LABEL name=ashutoshh
+ ---> Running in 9189c491ae80
+Removing intermediate container 9189c491ae80
+ ---> 2da33ab3c7d9
+Step 3/3 : COPY html-sample-app /usr/share/nginx/html/
+ ---> be531a483849
+Successfully built be531a483849
+Successfully tagged ashunginx:appv1
+[ashu@mobi-dockerserver webapps]$ 
+```
+
+### creating container with port forwarding 
+
+```
+[ashu@mobi-dockerserver webapps]$ docker  run -d --name ashuwc1  -p  1234:80  ashunginx:appv1 
+b7fead68143c1d338694068cb171a1e33cbf6bcda58d22b5cc7e4bd7ad23d08d
+[ashu@mobi-dockerserver webapps]$ docker  ps
+CONTAINER ID   IMAGE              COMMAND                  CREATED         STATUS         PORTS                                   NAMES
+b7fead68143c   ashunginx:appv1    "/docker-entrypoint.…"   3 seconds ago   Up 3 seconds   0.0.0.0:1234->80/tcp, :::1234->80/tcp   ashuwc1
+3c18cc2a1106   sofianginx:appv1   "/docker-entrypoint.…"   6 seconds ago   Up 5 seconds   0.0.0.0:3628->80/tcp, :::3628->80/tcp   sofiac1
+[ashu@mobi-dockers
+```
+
+### running same example using docker-compose file 
+
+```
+version: '3.8'
+services:
+  ashuwebapp:
+    image: ashunginx:appv1 # image i want to build
+    build: # calling dockerfile to build image 
+      context: ../webapps
+      dockerfile: Dockerfile
+    container_name: ashungc1 # name of container 
+    ports: # port forwarding rule 
+    - "1234:80"
+```
+
+### lets run it 
+
+```
+ 218  docker-compose -f nginx.yaml  up -d 
+  219  history 
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose -f nginx.yaml  ps 
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+ashungc1            "/docker-entrypoint.…"   ashuwebapp          running             0.0.0.0:1234->80/tcp, :::1234->80/tcp
+[ashu@mobi-dockerserver ashu-compose]$ 
+```
+
+### lets clean up 
+
+```
+[ashu@mobi-dockerserver ashu-compose]$ docker-compose -f nginx.yaml  down 
+[+] Running 2/2
+ ⠿ Container ashungc1            Removed                                                                           0.2s
+ ⠿ Network ashu-compose_default  Removed                
+```
+
+
+
+
 
 
 
