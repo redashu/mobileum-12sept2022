@@ -345,6 +345,84 @@ services: # number of application you want to manage
 
 ```
 
+## networking in containers 
+
+<img src="net.png">
+
+### Networking models in Containers 
+
+<img src="cm.png">
+
+### Docker bridge and containers IP address 
+
+<img src="br.png">
+
+### checking bridges 
+
+```
+[ashu@mobi-dockerserver ashu-compose]$ docker network  ls
+NETWORK ID     NAME      DRIVER    SCOPE
+b301c26dcbbd   bridge    bridge    local
+9877e4991da4   host      host      local
+b1435c369c1d   none      null      local
+[ashu@mobi-dockerserver ashu-compose]$ docker network inspect b301c26dcbbd  
+[
+    {
+        "Name": "bridge",
+        "Id": "b301c26dcbbd9131c3a0ca2083b8c961a866408dddf9dc895bcf5d06c95deaa3",
+        "Created": "2022-09-13T07:20:06.993390054Z",
+        "Scope": "local",
+        "Driver": "bridge",
+        "EnableIPv6": false,
+        "IPAM": {
+            "Driver": "default",
+            "Options": null,
+            "Config": [
+                {
+                    "Subnet": "172.17.0.0/16",
+                    "Gateway": "172.17.0.1"
+                }
+            ]
+        },
+        "Internal": false,
+        "Attachable": false,
+        "Ingress": false,
+        "ConfigFrom": {
+            "Network": ""
+        },
+        "ConfigOnly": false,
+        "Containers": {},
+        "Options": {
+```
+
+### Containers in same bridge can connect to each other 
+
+
+```
+root@mobi-dockerserver ~]# docker  exec -it  ashuc1   sh 
+/ # ifconfig 
+eth0      Link encap:Ethernet  HWaddr 02:42:AC:11:00:02  
+          inet addr:172.17.0.2  Bcast:172.17.255.255  Mask:255.255.0.0
+          UP BROADCAST RUNNING MULTICAST  MTU:1500  Metric:1
+          RX packets:14 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:0 
+          RX bytes:1112 (1.0 KiB)  TX bytes:0 (0.0 B)
+
+lo        Link encap:Local Loopback  
+          inet addr:127.0.0.1  Mask:255.0.0.0
+          UP LOOPBACK RUNNING  MTU:65536  Metric:1
+          RX packets:0 errors:0 dropped:0 overruns:0 frame:0
+          TX packets:0 errors:0 dropped:0 overruns:0 carrier:0
+          collisions:0 txqueuelen:1000 
+          RX bytes:0 (0.0 B)  TX bytes:0 (0.0 B)
+
+/ # ping  172.17.0.4
+PING 172.17.0.4 (172.17.0.4): 56 data bytes
+64 bytes from 172.17.0.4: seq=0 ttl=64 time=0.152 ms
+64 bytes from 172.17.0.4: seq=1 tt
+```
+
 
 
 
