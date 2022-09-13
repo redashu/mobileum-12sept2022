@@ -424,6 +424,18 @@ PING 172.17.0.4 (172.17.0.4): 56 data bytes
 ```
 
 
+## Understanding NAT 
+
+<img src="nat.png">
+
+### External world can access container app using port forwarding
+
+<img src="portf.png">
+
+### port f again 
+
+<img src="portf1.png">
+
 
 
 
