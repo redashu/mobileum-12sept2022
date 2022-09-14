@@ -221,6 +221,35 @@ compose.yaml  Dockerfile  java-springboot
   378  history 
 ```
 
+### docker task 3 
+
+```
+191  docker  run -it --name ashucimg  oraclelinux:8.4 
+  192  history 
+  193  docker  commit  ashucimg  ashucming:v007 
+  194  docker  images
+  195  history 
+  196  docker  run -itd --name ashuc111 ashucming:v007 
+  197  docker  ps
+  198  history 
+  199  docker  inspect  ashuc111 
+  200  history 
+  201  docker update  ashuc111  --restart always 
+  202  docker  inspect  ashuc111 
+  203  history 
+[root@mobi-dockerserver ~]# docker tag ashucming:v007   dockerashu/ashutask4:v1 
+[root@mobi-dockerserver ~]# docker login -u dockerashu
+Password: 
+WARNING! Your password will be stored unencrypted in /root/.docker/config.json.
+Configure a credential helper to remove this warning. See
+https://docs.docker.com/engine/reference/commandline/login/#credentials-store
+
+Login Succeeded
+[root@mobi-dockerserver ~]# docker push dockerashu/ashutask4:v1
+The push refers to repository [docker.io/dockerashu/ashutask4]
+276d3959ebe8: Pushing [========>                                 
+```
+
 
 
 
