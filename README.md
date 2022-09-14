@@ -83,3 +83,118 @@ ashujc1             ashujavaweb         appv1               6db97f49e178        
  ⠿ Container ashujc1                Started  
 ```
 
+## Multi stage Dockerfile 
+
+<img src="multi.png">
+
+### Demo -- cloning springboot app 
+
+```
+[ashu@mobi-dockerserver ashu-javawebapp]$ docker-compose down 
+[+] Running 2/2
+ ⠿ Container ashujc1                Removed                                                      0.2s
+ ⠿ Network ashu-javawebapp_default  Removed                                                      0.1s
+[ashu@mobi-dockerserver ashu-javawebapp]$ cd ..
+[ashu@mobi-dockerserver myimages]$ mkdir ashu-multistage
+[ashu@mobi-dockerserver myimages]$ cd ashu-multistage/
+[ashu@mobi-dockerserver ashu-multistage]$ 
+[ashu@mobi-dockerserver ashu-multistage]$ git clone https://github.com/redashu/java-springboot.git
+Cloning into 'java-springboot'...
+remote: Enumerating objects: 23, done.
+remote: Counting objects: 100% (23/23), done.
+remote: Compressing objects: 100% (17/17), done.
+remote: Total 23 (delta 4), reused 0 (delta 0), pack-reused 0
+Receiving objects: 100% (23/23), 5.62 KiB | 5.62 MiB/s, done.
+Resolving deltas: 100% (4/4), done.
+[ashu@mobi-dockerserver ashu-multistage]$ 
+```
+
+### making files 
+
+```
+[ashu@mobi-dockerserver ashu-multistage]$ ls
+java-springboot
+[ashu@mobi-dockerserver ashu-multistage]$ touch compose.yaml 
+[ashu@mobi-dockerserver ashu-multistage]$ touch Dockerfile
+[ashu@mobi-dockerserver ashu-multistage]$ ls
+compose.yaml  Dockerfile  java-springboot
+[ashu@mobi-dockerserver ashu-multistage]$ 
+
+```
+
+## Dockerfile 
+
+```
+FROM oraclelinux:8.4  as Stage1 
+LABEL name=ashutoshh 
+RUN yum install maven java-1.8.0-openjdk.x86_64 java-1.8.0-openjdk-devel.x86_64 -y && mkdir /webapp
+ADD java-springboot /webapp/
+WORKDIR /webapp
+# to change directory during image build time 
+RUN mvn clean package
+# to build javaspring app into a .war file --target/WebApp.war 
+FROM tomcat
+LABEL name=ashu
+LABEL email=ashutoshh@linux.com 
+COPY   --from=Stage1 /webapp/target/WebApp.war /usr/local/tomcat/webapps/
+# taking war from stage 1 and copy it to tomcat default location
+
+
+```
+
+
+### compose file 
+
+```
+version: '3.8'
+services:
+  ashuspring:
+    image: ashuspring:v1 
+    build: . 
+    container_name: ashujjcc1
+    ports:
+    - "3355:8080" 
+```
+
+### .dockerignore 
+
+```
+java-springboot/.git
+java-springboot/README.md
+```
+
+### lets run it 
+
+```
+[ashu@mobi-dockerserver ashu-multistage]$ ls
+compose.yaml  Dockerfile  java-springboot
+[ashu@mobi-dockerserver ashu-multistage]$ docker-compose  up -d 
+[+] Running 0/0
+ ⠿ ashuspring Error                                                                              0.1s
+[+] Building 104.1s (13/13) FINISHED                                                                  
+ => [internal] load build definition from Dockerfile                                             0.0s
+ => => transferring dockerfile: 572B                                                             0.0s
+ => [internal] load .dockerignore                                                                0.0s
+ => => transferring context: 86B                                                                 0.0s
+ => [internal] load metadata for docker.io/library/tomcat:latest                                 0.1s
+ => [internal] load metadata for docker.io/library/oraclelinux:8.4                               0.0s
+ => CACHED [stage-1 1/2] FROM docker.io/library/tomcat@sha256:bb81645575fef90e48e6f9fff50e06d5b  0.0s
+ => [stage1 1/5] FROM docker.io/library/oraclelinux:8.4                                          0.0s
+ => [internal] load build context                                                                0.1s
+ => => transferring context: 5.82kB                                                              0.0s
+ => [stage1 2/5] RUN yum install maven java-1.8.0-openjdk.x86_64 java-1.8.0-openjdk-devel.x86_  50.3s
+ => [stage1 3/5] ADD java-springboot /webapp/                                                    0.1s 
+ => [stage1 4/5] WORKDIR /webapp                                                                 0.2s
+ => [stage1 5/5] RUN mvn clean package                                                          53.2s
+ => [stage-1 2/2] COPY   --from=Stage1 /webapp/target/WebApp.war /usr/local/tomcat/webapps/      0.1s
+ => exporting to image                                                                           0.1s
+ => => exporting layers                                                                          0.0s
+ => => writing image sha256:93d6c733c8acf3e242e5fd517eaf73dccba100fad36bc6096b64d71a63daa82e     0.0s
+ => => naming to docker.io/library/ashuspring:v1                                                 0.0s
+[+] Running 2/2
+ ⠿ Network ashu-multistage_default  Created                                                      0.4s
+ ⠿ Container ashujjcc1              Started          
+```
+
+
+
