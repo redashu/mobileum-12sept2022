@@ -425,4 +425,12 @@ ashudbc1            "docker-entrypoint.s…"   ashudbapp           running      
 
 ```
 
+### contaienr orchestration problem 
+
+<img src="carch.png">
+
+### Engine 
+
+<img src="engine.png">
+
 
