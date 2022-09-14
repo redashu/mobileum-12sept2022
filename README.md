@@ -285,5 +285,36 @@ unless-stopped
   224  docker  run -itd --name ashuc003  --memory 100M  --cpus=0 --cpu-shares=30   alpine 
 ```
 
+## Docker Storage 
 
+<img src="st.png">
+
+## lets create db container 
+
+```
+[ashu@mobi-dockerserver ashu-multistage]$ docker run -d --name ashudb1 -e MYSQL_ROOT_PASSWORD="Db@098#" mysql
+Unable to find image 'mysql:latest' locally
+latest: Pulling from library/mysql
+492d84e496ea: Pull complete 
+bbe20050901c: Pull complete 
+e3a5e171c2f8: Pull complete 
+c2cedd8aa061: Pull complete 
+d6a485af4cc9: Pull complete 
+ee16a57baf60: Pull complete 
+64bab9180d2a: Pull complete 
+c3aceb7e4f48: Pull complete 
+269002e5cf58: Pull complete 
+d5abeb1bd18e: Pull complete 
+cbd79da5fab6: Pull complete 
+Digest: sha256:cdf3b62d78d1bbb1d2bd6716895a84014e00716177cbb7e90f6c6a37a21dc796
+Status: Downloaded newer image for mysql:latest
+84bc74cb9b7790d1ac1dd2bcafd81d142f2f23aae8e9cdc308e2b581e0106f96
+[ashu@mobi-dockerserver ashu-multistage]$ 
+```
+
+### check container 
+
+```
+docker ps 
+```
 
