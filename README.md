@@ -250,6 +250,40 @@ The push refers to repository [docker.io/dockerashu/ashutask4]
 276d3959ebe8: Pushing [========>                                 
 ```
 
+### Container restart policy 
+
+[restart policy](https://docs.docker.com/config/containers/start-containers-automatically/)
+
+### restart policy demo
+
+```
+ 380  docker inspect  c1 --format='{{.Id}}'
+  381  docker inspect  c1 --format='{{.State.Status}}'
+  382  docker inspect  c1 --format='{{.HostConfig.RestartPolicy.Name}}'
+  383  docker  ps 
+  384  history 
+[ashu@mobi-dockerserver ashu-multistage]$ docker run -itd --name c2  --restart always   alpine
+a3d0a028fdda38baa8bf2b7d7699316d3e7eb05f79e737dca2af34a0e98664cc
+[ashu@mobi-dockerserver ashu-multistage]$ docker inspect  c2 --format='{{.HostConfig.RestartPolicy.Name}}'
+always
+[ashu@mobi-dockerserver ashu-multistage]$ docker update c2 --restart unless-stopped
+c2
+[ashu@mobi-dockerserver ashu-multistage]$ docker inspect  c2 --format='{{.HostConfig.RestartPolicy.Name}}'
+unless-stopped
+```
+
+## Cgroups -- control groups 
+
+<img src="cg.png">
+
+### cgroups 
+
+```
+  221  docker  run -itd --name ashuc001  --memory 100M alpine 
+  222  docker  stats
+  223  docker  run -itd --name ashuc002  --memory 100M  --cpu-shares=30   alpine 
+  224  docker  run -itd --name ashuc003  --memory 100M  --cpus=0 --cpu-shares=30   alpine 
+```
 
 
 
