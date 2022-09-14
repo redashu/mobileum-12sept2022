@@ -195,6 +195,32 @@ compose.yaml  Dockerfile  java-springboot
  ⠿ Network ashu-multistage_default  Created                                                      0.4s
  ⠿ Container ashujjcc1              Started          
 ```
+## image pushing 
+
+### Docker Hub 
+
+```
+ 364  docker tag ashuspring:v1  docker.io/dockerashu/mobispring:appv1 
+  365  docker login  -u dockerashu
+  366  docker push docker.io/dockerashu/mobispring:appv1
+  367  docker logout
+```
+
+### ECR 
+
+```
+ 369  docker tag ashuspring:v1  751136288263.dkr.ecr.us-east-1.amazonaws.com/mobileumspringapp:ashuv1 
+  370  history 
+  371  docker  login 751136288263.dkr.ecr.us-east-1.amazonaws.com -u AWS
+  372  hsitor
+  373  history 
+  374  cat  /tmp/pass.txt 
+  375  history 
+  376  docker push 751136288263.dkr.ecr.us-east-1.amazonaws.com/mobileumspringapp:ashuv1
+  377  docker  logout  751136288263.dkr.ecr.us-east-1.amazonaws.com 
+  378  history 
+```
+
 
 
 
