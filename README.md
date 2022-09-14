@@ -315,6 +315,114 @@ Status: Downloaded newer image for mysql:latest
 ### check container 
 
 ```
-docker ps 
+[test@docker-server ~]$ docker  ps
+CONTAINER ID   IMAGE     COMMAND                  CREATED          STATUS          PORTS                 NAMES
+5a70171d1672   mysql     "docker-entrypoint.s…"   3 seconds ago    Up 2 seconds    3306/tcp, 33060/tcp   ashudb1
+03264ab0cc05   mysql     "docker-entrypoint.s…"   12 seconds ago   Up 11 seconds   3306/tcp, 33060/tcp   roy-db1
+5e93380f23da   mysql     "docker-entrypoint.s…"   38 seconds ago   Up 37 seconds   3306/tcp, 33060/tcp   vccardosodb1
+[test@docker-server ~]$ 
+
+
+
 ```
+
+### login to mysql prompt 
+
+```
+[test@docker-server ~]$ docker  exec -it ashudb1  bash 
+bash-4.4# 
+bash-4.4# 
+bash-4.4# mysql -u root -p
+Enter password: 
+Welcome to the MySQL monitor.  Commands end with ; or \g.
+Your MySQL connection id is 8
+Server version: 8.0.30 MySQL Community Server - GPL
+
+Copyright (c) 2000, 2022, Oracle and/or its affiliates.
+
+Oracle is a registered trademark of Oracle Corporation and/or its
+affiliates. Other names may be trademarks of their respective
+owners.
+
+Type 'help;' or '\h' for help. Type '\c' to clear the current input statement.
+
+mysql> 
+
+```
+
+### creating volume 
+
+```
+[test@docker-server ~]$ docker  volume  create  ashuvol1
+ashuvol1
+[test@docker-server ~]$ docker  volume  ls
+DRIVER    VOLUME NAME
+local     ashuvol1
+[test@docker-server ~]$ docker  volume  inspect  ashuvol1
+[
+    {
+        "CreatedAt": "2022-09-14T13:38:50Z",
+        "Driver": "local",
+        "Labels": {},
+        "Mountpoint": "/var/lib/docker/volumes/ashuvol1/_data",
+        "Name": "ashuvol1",
+        "Options": {},
+        "Scope": "local"
+    }
+]
+
+```
+
+### attaching volume
+
+```
+ docker run -d --name ashudb1  -v  ashuvol1:/var/lib/mysql/ --restart always -e MYSQL_ROOT_PASSWORD="Db@098#" mysql 
+```
+
+### final compose example 
+
+```
+[test@docker-server ashudb-compose]$ cat  docker-compose.yaml 
+version: '3.8'
+volumes: # creating volume 
+  ashuvol1: 
+networks: # create network 
+  ashubr1: 
+services:
+  ashudbclient:
+    image: adminer
+    restart: always
+    container_name: ashudb-client
+    ports:
+      - "1199:8080"
+    depends_on: # wait for service to be in ready state
+      - ashudbapp
+    networks:
+      - ashubr1
+  ashudbapp:
+    image: mysql
+    container_name: ashudbc1
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: "DB@098#"
+    volumes:
+      - "ashuvol1:/var/lib/mysql/"
+    networks:
+      - ashubr1
+[test@docker-server ashudb-compose]$ docker-compose up -d
+-bash: docker-compose: command not found
+[test@docker-server ashudb-compose]$ docker-compose up -d
+[+] Running 4/4
+ ⠿ Network ashudb-compose_ashubr1    Created                                                                           0.0s
+ ⠿ Volume "ashudb-compose_ashuvol1"  Created                                                                           0.0s
+ ⠿ Container ashudbc1                Started                                                                           0.7s
+ ⠿ Container ashudb-client           Started                                                                           1.2s
+[test@docker-server ashudb-compose]$ docker-compose ps
+NAME                COMMAND                  SERVICE             STATUS              PORTS
+ashudb-client       "entrypoint.sh docke…"   ashudbclient        running             0.0.0.0:1199->8080/tcp, :::1199->8080/tcp
+ashudbc1            "docker-entrypoint.s…"   ashudbapp           running             3306/tcp, 33060/tcp
+[test@docker-server ashudb-compose]$ 
+
+```
+
 
