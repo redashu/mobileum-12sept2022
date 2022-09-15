@@ -348,6 +348,99 @@ ricardo-pod-1   1/1     Running   0
 
 <img src="lb1.png">
 
+### service type in k8s 
+
+<img src="stype.png">
+
+### Nodeport service 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl   create  service 
+Create a service using a specified subcommand.
+
+Aliases:
+service, svc
+
+Available Commands:
+  clusterip      Create a ClusterIP service
+  externalname   Create an ExternalName service
+  loadbalancer   Create a LoadBalancer service
+  nodeport       Create a NodePort service
+
+```
+
+### creating it 
+
+```
+kubectl   create  service nodeport  ashulb1  --tcp  1234:80  --dry-run=client -o yaml >nodeport.yaml 
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  apply -f nodeport.yaml 
+service/ashulb1 created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  svc
+NAME           TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE
+ashulb1        NodePort    10.102.103.171   <none>        1234:32473/TCP   9s
+```
+
+### updating lable of pod 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  replace -f autopod.yaml  --force 
+pod "ashupod1" deleted
+pod/ashupod1 replaced
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  po ashupod1  --show-labels
+NAME       READY   STATUS    RESTARTS   AGE   LABELS
+ashupod1   1/1     Running   0          2s    x=helloashu
+[ashu@mobi-dockerserver k8s-resources]$ 
+
+```
+
+### YAML of nOdeport 
+
+```
+apiVersion: v1
+kind: Service # means create Internal LB 
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashulb1
+  name: ashulb1 # name of LB 
+spec:
+  ports:
+  - name: 1234-80
+    port: 1234 # service / LB port 
+    protocol: TCP
+    targetPort: 80 # pod port 
+  selector: # pod finder using below given label 
+    x: helloashu # exact label of pod 
+  type: NodePort # type of service 
+status:
+  loadBalancer: {}
+
+```
+
+### deploy it again 
+
+```
+kubectl apply -f nodeport.yaml
+--
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get po ashupod1 -o wide
+NAME       READY   STATUS    RESTARTS   AGE   IP               NODE    NOMINATED NODE   READINESS GATES
+ashupod1   1/1     Running   0          10m   192.168.104.40   node2   <none>           <none>
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get po ashupod1 --show-labels
+NAME       READY   STATUS    RESTARTS   AGE   LABELS
+ashupod1   1/1     Running   0          10m   x=helloashu
+[ashu@mobi-dockerserver k8s-resources]$ 
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get svc ashulb1 -o wide 
+NAME      TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)          AGE   SELECTOR
+ashulb1   NodePort   10.102.103.171   <none>        1234:32473/TCP   22m   x=helloashu
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  ep ashulb1 
+NAME      ENDPOINTS           AGE
+ashulb1   192.168.104.40:80   22m
+[ashu@mobi-dockerserver k8s-r
+```
+
+
+
+
 
 
 
