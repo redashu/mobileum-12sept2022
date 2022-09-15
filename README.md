@@ -296,6 +296,59 @@ pod "ashupod-1234" deleted
 
 ```
 
+## webapp -- Frontend app 
+
+### sample to deploy in a pod and generating yaml 
+
+```
+kubectl  run  ashupod1  --image=docker.io/dockerashu/ashuapp:mobiv11 --port 80 --dry-run=client -o yaml  >autopod.yaml 
+```
+
+### -- 
+
+```
+361  kubectl  run  ashupod1  --image=docker.io/dockerashu/ashuapp:mobiv11 --port 80 --dry-run=client -o yaml 
+  362  kubectl  run  ashupod1  --image=docker.io/dockerashu/ashuapp:mobiv11 --port 80 --dry-run=client -o json 
+```
+
+### deploy 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl apply -f autopod.yaml 
+pod/ashupod1 created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get po 
+NAME            READY   STATUS    RESTARTS   AGE
+aseemautopod    1/1     Running   0          65s
+ashupod1        1/1     Running   0          4s
+ricardo-pod-1   1/1     Running   0          99s
+ritpod1         1/1     Running   0          3m9s
+vascopod1       1/1     Running   0          3m10s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get po -o wide
+NAME            READY   STATUS    RESTARTS   AGE     IP                NODE    NOMINATED NODE   READINESS GATES
+aseemautopod    1/1     Running   0          76s     192.168.135.31    node3   <none>           <none>
+ashupod1        1/1     Running   0          15s     192.168.104.32    node2   <none>           <none>
+filipe-pod1     1/1     Running   0          7s      192.168.135.32    node3   <none>           <none>
+ricardo-pod-1   1/1     Running   0     
+```
+
+## Networking in k8s 
+
+<img src="net1.png">
+
+### calico CNI 
+
+<img src="calico.png">
+
+### More info about CNI plugin 
+
+<img src="cni1.png">
+
+
+## overall netowrking design with LB 
+
+<img src="lb1.png">
+
+
 
 
 
