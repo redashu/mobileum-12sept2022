@@ -438,6 +438,13 @@ ashulb1   192.168.104.40:80   22m
 [ashu@mobi-dockerserver k8s-r
 ```
 
+### checking manual of any k8s resource type 
+
+```
+381  kubectl explain  service
+  382  kubectl explain  service.spec
+```
+
 
 
 
