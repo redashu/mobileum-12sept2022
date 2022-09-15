@@ -66,3 +66,65 @@ fire@ashutoshhs-MacBook-Air ~ % kubectl version --client  -o json
 
 [click](https://kubernetes.io/docs/tasks/tools/)
 
+
+## COntrol plane auth file location for clients 
+
+```
+[root@control-plane ~]# cd  /etc/kubernetes/
+[root@control-plane kubernetes]# ls
+admin.conf 
+```
+
+### lets check connection b/w client and apiserver 
+
+```
+fire@ashutoshhs-MacBook-Air ~ % cd ~/Desktop
+fire@ashutoshhs-MacBook-Air Desktop % ls
+ANIPL				awscred5thsept.txt		k8sarch.png			spinnaker
+admin.conf.txt			hello.java			new_user_credentials (1).csv	thexyzcompany
+apis.png			id_rsa.pub			ordertraining
+fire@ashutoshhs-MacBook-Air Desktop % 
+fire@ashutoshhs-MacBook-Air Desktop % 
+fire@ashutoshhs-MacBook-Air Desktop % 
+fire@ashutoshhs-MacBook-Air Desktop % kubectl  get  nodes  --kubeconfig  admin.conf.txt 
+NAME            STATUS   ROLES           AGE    VERSION
+control-plane   Ready    control-plane   2d3h   v1.25.0
+node1           Ready    <none>          2d3h   v1.25.0
+node2           Ready    <none>          2d3h   v1.25.0
+node3           Ready    <none>          2d3h   v1.25.0
+fire@ashutoshhs-MacBook-Air Desktop % 
+fire@ashutoshhs-MacBook-Air Desktop % kubectl  cluster-info   --kubeconfig  admin.conf.txt 
+Kubernetes control plane is running at https://44.209.211.99:6443
+CoreDNS is running at https://44.209.211.99:6443/api/v1/namespaces/kube-system/services/kube-dns:dns/proxy
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+fire@ashutoshhs-MacBook-Air Desktop % 
+
+
+```
+
+### linux client setup 
+
+```
+ashu@mobi-dockerserver myimages]$ wget http://44.209.211.99/admin.conf
+--2022-09-15 09:06:01--  http://44.209.211.99/admin.conf
+Connecting to 44.209.211.99:80... connected.
+HTTP request sent, awaiting response... 200 OK
+Length: 5637 (5.5K) [text/plain]
+Saving to: ‘admin.conf’
+
+100%[============================================================>] 5,637       --.-K/s   in 0s      
+
+2022-09-15 09:06:01 (293 MB/s) - ‘admin.conf’ saved [5637/5637]
+
+[ashu@mobi-dockerserver myimages]$ mkdir ~/.kube
+[ashu@mobi-dockerserver myimages]$ cp -v admin.conf   ~/.kube/config 
+‘admin.conf’ -> ‘/home/ashu/.kube/config’
+[ashu@mobi-dockerserver myimages]$ kubectl   get  nodes
+NAME            STATUS   ROLES           AGE    VERSION
+control-plane   Ready    control-plane   2d3h   v1.25.0
+node1           Ready    <none>          2d3h   v1.25.0
+node2           Ready    <none>          2d3h   v1.25.0
+```
+
+
