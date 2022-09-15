@@ -127,4 +127,175 @@ node1           Ready    <none>          2d3h   v1.25.0
 node2           Ready    <none>          2d3h   v1.25.0
 ```
 
+## Etcd on control plane 
+
+<img src="etcd.png">
+
+## kubernetes worker / Minion components 
+
+<img src="node.png">
+
+## Understanding Pod 
+
+<img src="pod.png">
+
+### creating resources in K8s 
+
+<img src="res.png">
+
+## Pods 
+
+### Example 1 
+
+```
+apiVersion: v1 
+kind: Pod # type of resource 
+metadata: # info about resource 
+  name: ashupod-1234  # name of pod 
+spec: # application info 
+  containers:
+  - name: ashuc1
+    image: alpine 
+    command: ["/bin/sh","-c","ping fb.com"] # default process of container 
+```
+
+### deploy pod 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ ls
+ashupod1.yaml
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  apply -f ashupod1.yaml 
+pod/ashupod-1234 created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl   get  pods
+NAME            READY   STATUS    RESTARTS   AGE
+ashupod-1234    1/1     Running   0          13s
+sofiapod-1234   1/1     Running   0          7s
+[ashu@mobi-dockerserver k8s-resources]$ 
+
+
+```
+
+### checking pod info 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl   get   nodes
+NAME            STATUS   ROLES           AGE    VERSION
+control-plane   Ready    control-plane   2d4h   v1.25.0
+node1           Ready    <none>          2d4h   v1.25.0
+node2           Ready    <none>          2d4h   v1.25.0
+node3           Ready    <none>          2d4h   v1.25.0
+[ashu@mobi-dockerserver ~]$ kubectl  get  pods  ashupod-1234  
+NAME           READY   STATUS    RESTARTS   AGE
+ashupod-1234   1/1     Running   0          5m58s
+[ashu@mobi-dockerserver ~]$ kubectl  get  pods  ashupod-1234   -o wide
+NAME           READY   STATUS    RESTARTS   AGE    IP                NODE    NOMINATED NODE   READINESS GATES
+ashupod-1234   1/1     Running   0          6m4s   192.168.166.143   node1   <none>           <none>
+[ashu@mobi-dockerserver ~]$ 
+
+```
+
+### checking pod container output 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl   logs  ashupod-1234 
+PING fb.com (157.240.24.35): 56 data bytes
+64 bytes from 157.240.24.35: seq=0 ttl=40 time=30.358 ms
+64 bytes from 157.240.24.35: seq=1 ttl=40 time=30.242 ms
+64 bytes from 157.240.24.35: seq=2 ttl=40 time=30.197 ms
+64 bytes from 157.240.24.35: seq=3 ttl=40 time=30.467 ms
+
+```
+
+### access shell of container inside pod 
+
+```
+ashu@mobi-dockerserver ~]$ kubectl  exec -it  ashupod-1234  -- sh 
+/ # 
+/ # 
+/ # cat  /etc/os-release 
+NAME="Alpine Linux"
+ID=alpine
+VERSION_ID=3.16.2
+PRETTY_NAME="Alpine Linux v3.16"
+HOME_URL="https://alpinelinux.org/"
+BUG_REPORT_URL="https://gitlab.alpinelinux.org/alpine/aports/-/issues"
+/ # ls
+bin    dev    etc    home   lib    media  mnt    opt    proc   root   run    sbin   srv    sys    tmp    usr    var
+/ # exit
+
+```
+
+### describe pod info 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl  describe  pod  ashupod-1234 
+Name:             ashupod-1234
+Namespace:        default
+Priority:         0
+Service Account:  default
+Node:             node1/172.31.83.42
+Start Time:       Thu, 15 Sep 2022 10:28:13 +0000
+Labels:           <none>
+Annotations:      cni.projectcalico.org/containerID: 3a8da0dc9e096d1f1f7913378be473db96e3f564babf43763330e644fa7da79d
+                  cni.projectcalico.org/podIP: 192.168.166.143/32
+                  cni.projectcalico.org/podIPs: 192.168.166.143/32
+Status:           Running
+IP:               192.168.166.143
+IPs:
+  IP:  192.168.166.143
+Containers:
+  ashuc1:
+    Container ID:  containerd://425a1f3f7f662334bd4bf0f504c137e0f2324c5a0b705e81c8d07a6fb9ba9652
+    Image:         alpine
+    Image ID:      docker.io/library/alpine@sha256:bc41182d7ef5ffc53a40b044e725193bc10142a1243f395ee852a8d9730fc2ad
+    Port:          <none>
+    Host Port:     <none>
+    Command:
+      /bin/sh
+      -c
+      ping fb.com
+    State:          Running
+      Started:      Thu, 15 Sep 2022 10:28:15 +0000
+    Ready:          True
+    Restart Count:  0
+    Environment:    <none>
+    Mounts:
+      /var/run/secrets/kubernetes.io/serviceaccount from kube-api-access-zkf4s (ro)
+Conditions:
+  Type              Status
+  Initialized       True 
+  Ready             True 
+  ContainersReady   True 
+  PodScheduled      True 
+Volumes:
+  kube-api-access-zkf4s:
+    Type:                    Projected (a volume that contains injected data from multiple sources)
+    TokenExpirationSeconds:  3607
+    ConfigMapName:           kube-root-ca.crt
+    ConfigMapOptional:       <nil>
+    DownwardAPI:             true
+QoS Class:                   BestEffort
+Node-Selectors:              <none>
+Tolerations:                 node.kubernetes.io/not-ready:NoExecute op=Exists for 300s
+                             node.kubernetes.io/unreachable:NoExecute op=Exists for 300s
+Events:
+  Type    Reason     Age   From               Message
+  ----    ------     ----  ----               -------
+  Normal  Scheduled  14m   default-scheduler  Successfully assigned default/ashupod-1234 to node1
+  Normal  Pulling    14m   kubelet            Pulling image "alpine"
+  Normal  Pulled     14m   kubelet            Successfully pulled image "alpine" in 524.971083ms
+  Normal  Created    14m   kubelet            Created container ashuc1
+  Normal  Started    14m   kubelet            Started container ashuc1
+```
+
+### delete pod 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl  delete  pod ashupod-1234
+pod "ashupod-1234" deleted
+
+```
+
+
+
 
