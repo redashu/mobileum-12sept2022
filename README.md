@@ -479,6 +479,33 @@ status:
   loadBalancer: {}
 ```
 
+## scaling in POd
+
+<img src="scale.png">
+
+### manual horizental scaling 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  scale  deployment  ashu-deploy  --replicas 3
+deployment.apps/ashu-deploy scaled
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-deploy   3/3     3            3           12m
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get po
+NAME                           READY   STATUS    RESTARTS   AGE
+ashu-deploy-5587b4f77c-5pdfn   1/1     Running   0          16s
+ashu-deploy-5587b4f77c-gx5pf   1/1     Running   0          6m58s
+ashu-deploy-5587b4f77c-hddqh   1/1     Running   0          16s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get po -o wide
+NAME                           READY   STATUS    RESTARTS   AGE    IP                NODE    NOMINATED NODE   READINESS GATES
+ashu-deploy-5587b4f77c-5pdfn   1/1     Running   0          22s    192.168.104.45    node2   <none>           <none>
+ashu-deploy-5587b4f77c-gx5pf   1/1     Running   0          7m4s   192.168.135.33    node3   <none>           <none>
+ashu-deploy-5587b4f77c-hddqh   1/1     Running   0          22s    192.168.166.160   node1   <none>           <none>
+[ashu@mobi-dockerserver k8s-resources]$ kubectl   get  ep 
+NAME   ENDPOINTS                                                AGE
+ss11   192.168.104.45:80,192.168.135.33:80,192.168.166.160:80   12m
+```
+
 
 
 
