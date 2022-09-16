@@ -526,6 +526,112 @@ ss11   192.168.104.45:80,192.168.135.33:80,192.168.166.160:80   12m
 
 ```
 
+## HPA understanding 
+
+<img src="hpa.png">
+
+### Hpa Implement 
+
+#### creating deployment 
+
+```
+kubectl   create  deploy  ashud1 --image=dockerashu/mobicustomer:v2  --port 80  --dry-run=client -o yaml >newdeploy.yaml 
+```
+
+### modified deployment YAML 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashud1
+  name: ashud1
+spec:
+  replicas: 1 # number of pod 
+  selector:
+    matchLabels:
+      app: ashud1
+  strategy: {}
+  template: # to create pods 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashud1
+    spec:
+      containers:
+      - image: dockerashu/mobicustomer:v2
+        name: mobicustomer
+        ports:
+        - containerPort: 80
+        env:  # adding Env section 
+        - name: deploy
+          value: webapp1 
+        resources: # adding cgroups 
+          requests: # default request 
+            cpu: 100m # 1vcpu = 1000m -- milicore 
+            memory: 300M 
+          limits: # max usage 
+            cpu: 200m 
+            memory: 500M 
+status: {}
+
+```
+
+### Deploy it 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl apply -f newdeploy.yaml 
+deployment.apps/ashud1 created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  deploy 
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+ashud1   1/1     1            1           7s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  po
+NAME                     READY   STATUS    RESTARTS   AGE
+ashud1-864787c87-vjqfx   1/1     Running   0          12s
+
+```
+
+### creating service 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get deploy 
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+ashud1   1/1     1            1           14s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  expose deploy  ashud1 --type NodePort --port 80   --name ashulb1 --dry-run=client -o yaml  >newsvc.yaml 
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  apply -f newsvc.yaml 
+service/ashulb1 created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get svc
+NAME      TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)        AGE
+ashulb1   NodePort   10.98.43.164   <none>        80:30004/TCP   4s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl get  ep 
+NAME      ENDPOINTS            AGE
+ashulb1   192.168.166.158:80   7s
+[ashu@mobi-dockerserver k8s-resources]$ 
+
+```
+
+### Hpa 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get deploy 
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+ashud1   1/1     1            1           4m1s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl autoscale deployment  ashud1 --cpu-percent 80     --min 3  --max 20 --dry-run=client -o yaml >hpa.yaml 
+[ashu@mobi-dockerserver k8s-resources]$ kubectl get deploy 
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+ashud1   1/1     1            1           6m43s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  apply -f hpa.yaml 
+horizontalpodautoscaler.autoscaling/ashud1 created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl get deploy 
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+ashud1   1/1     1            1           6m54s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl get deploy 
+NAME     READY   UP-TO-DATE   AVAILABLE   AGE
+ashud1   3/3     3            3           7m15s
+[ashu@mobi-dockerserver k8s-resources]$ 
+```
 
 
 
