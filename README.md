@@ -506,6 +506,27 @@ NAME   ENDPOINTS                                                AGE
 ss11   192.168.104.45:80,192.168.135.33:80,192.168.166.160:80   12m
 ```
 
+## How end user access application -- network flow 
+
+<img src="netflow.png">
+
+###  K8s setup method understanding 
+
+<img src="setup.png">
+
+### expose command to create service  
+
+```
+ 667  kubectl  get  deploy 
+  668  kubectl  expose  deployment  ashu-deploy  --type LoadBalancer   --port 80  --name ashulb1 
+  669  kubectl  get  svc
+  670  kubectl  get  ep
+  671  kubectl  expose  deployment  ashu-deploy  --type NodePort    --port 80  --name ashulb2 
+  672  kubectl  get  svc
+
+```
+
+
 
 
 
