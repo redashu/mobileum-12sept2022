@@ -212,4 +212,223 @@ NAME         READY   STATUS    RESTARTS   AGE   IP               NODE    NOMINAT
 ashuwebapp   1/1     Running   0          17m   192.168.135.49   node3   <none>           <none>
 ```
 
+## problems with Pod 
+
+<img src="pod.png">
+
+### Introduction to controllers
+
+<img src="contr1.png">
+
+## COntrollers in kubernets -- Deployment 
+
+<img src="dep1.png">
+
+### Building app image 
+
+<img src="cus.png">
+
+### cleaning namespace resources 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  delete pod,svc --all
+pod "ashuwebapp" deleted
+service "ashuwebsvc" deleted
+```
+
+### creating deployment 
+
+```
+kubectl  create deployment ashu-deploy --image=docker.io/dockerashu/mobicustomer:v1  --port 80 --dry-run=client -o yaml  >deployment.yaml 
+```
+### YAML of Deployment 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-deploy
+  name: ashu-deploy
+spec:
+  replicas: 1 # number of pods we want to deploy 
+  selector:
+    matchLabels:
+      app: ashu-deploy
+  strategy: {} # deployment strategy 
+  template: # this will be used to create pods 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-deploy
+    spec:
+      containers:
+      - image: docker.io/dockerashu/mobicustomer:v1
+        name: mobicustomer
+        ports:
+        - containerPort: 80
+        resources: {}
+status: {}
+
+```
+
+### Deploy above yaml 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  apply -f  deployment.yaml 
+deployment.apps/ashu-deploy created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl   get  deployment 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-deploy   1/1     1            1           24s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  rs 
+NAME                     DESIRED   CURRENT   READY   AGE
+ashu-deploy-755fd7f67f   1         1         1       42s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  po
+NAME                           READY   STATUS    RESTARTS   AGE
+ashu-deploy-755fd7f67f-46xsx   1/1     Running   0          52s
+[ashu@mobi-dockerserver k8s-resources]$ 
+
+```
+### adding service yaml in same file 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-deploy
+  name: ashu-deploy
+spec:
+  replicas: 1 # number of pods we want to deploy 
+  selector:
+    matchLabels:
+      app: ashu-deploy
+  strategy: {} # deployment strategy 
+  template: # this will be used to create pods 
+    metadata:
+      creationTimestamp: null
+      labels: # label of pods 
+        app: ashu-deploy
+    spec:
+      containers:
+      - image: docker.io/dockerashu/mobicustomer:v1
+        name: mobicustomer
+        ports:
+        - containerPort: 80
+        resources: {}
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ss11
+  name: ss11
+spec:
+  ports:
+  - name: 1234-80
+    port: 1234
+    protocol: TCP
+    targetPort: 80
+  selector: # pod finder  using label of pods 
+    app: ashu-deploy # label of pod 
+  type: NodePort
+status:
+  loadBalancer: {}
+
+```
+### redeploy 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  apply -f  deployment.yaml 
+deployment.apps/ashu-deploy configured
+service/ss11 created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-deploy   1/1     1            1           8m17s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  svc
+NAME   TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+ss11   NodePort   10.111.84.33   <none>        1234:31534/TCP   59s
+[ashu@mobi-dockerserver k8s-resources]$ 
+
+```
+
+### YAML final with ENV 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-deploy
+  name: ashu-deploy
+spec:
+  replicas: 1 # number of pods we want to deploy 
+  selector:
+    matchLabels:
+      app: ashu-deploy
+  strategy: {} # deployment strategy 
+  template: # this will be used to create pods 
+    metadata:
+      creationTimestamp: null
+      labels: # label of pods 
+        app: ashu-deploy
+    spec:
+      containers:
+      - image: docker.io/dockerashu/mobicustomer:v1
+        name: mobicustomer
+        ports:
+        - containerPort: 80
+        env: # to call Env section of docker image 
+        - name: deploy # name of Env from Dockerfile 
+          value: webapp2 # value of env 
+        resources: {}
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ss11
+  name: ss11
+spec:
+  ports:
+  - name: 1234-80
+    port: 1234
+    protocol: TCP
+    targetPort: 80
+  selector: # pod finder  using label of pods 
+    app: ashu-deploy # label of pod 
+  type: NodePort
+status:
+  loadBalancer: {}
+
+```
+
+### Redeploy 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  apply -f  deployment.yaml 
+deployment.apps/ashu-deploy configured
+service/ss11 configured
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-deploy   1/1     1            1           12m
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  svc
+NAME   TYPE       CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+ss11   NodePort   10.111.84.33   <none>        1234:31534/TCP   4m56s
+```
+
+
+
+
 
