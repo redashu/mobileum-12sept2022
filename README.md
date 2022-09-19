@@ -204,6 +204,28 @@ status:
 
 ```
 
+### lets create and verify 
+
+```
+[ashu@mobi-dockerserver app-deploy]$ ls
+deployment.yaml  hpa.yaml  loadbalancer.yaml
+[ashu@mobi-dockerserver app-deploy]$ kubectl apply -f . 
+deployment.apps/ashu-app created
+horizontalpodautoscaler.autoscaling/ashu-app created
+service/ashulb1 created
+[ashu@mobi-dockerserver app-deploy]$ kubectl  get  deploy 
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-app   3/3     3            3           26s
+[ashu@mobi-dockerserver app-deploy]$ kubectl  get  svc
+NAME      TYPE           CLUSTER-IP     EXTERNAL-IP   PORT(S)          AGE
+ashulb1   LoadBalancer   10.97.92.123   <pending>     1234:31642/TCP   29s
+[ashu@mobi-dockerserver app-deploy]$ kubectl  get  hpa
+NAME       REFERENCE             TARGETS         MINPODS   MAXPODS   REPLICAS   AGE
+ashu-app   Deployment/ashu-app   <unknown>/70%   3         15        3          34s
+[ashu@mobi-dockerserver app-deploy]$ 
+
+```
+
 
 
 
