@@ -98,6 +98,111 @@ To https://github.com/redashu/ashumobi-ci.git
 
 <img src="trigger.png">
 
+### creating YAML for application Deployment 
+
+```
+kubectl create deployment ashu-app --image=dockerashu/ashumobiwebapp:latest  --port 80 --dry-run=client -o yaml  >deployment.yaml 
+```
+### adding changes 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels: # label  
+    app: ashu-app
+  name: ashu-app # name of deployment 
+  namespace: ashu-project # namespace info 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-app
+  strategy: {}
+  template: # to create pods 
+    metadata:
+      creationTimestamp: null
+      labels: # label of pdo 
+        app: ashu-app
+    spec:
+      containers:
+      - image: dockerashu/ashumobiwebapp:latest
+        name: ashumobiwebapp
+        ports:
+        - containerPort: 80
+        resources: # for pha purpose 
+          requests:
+            cpu: 100m
+            memory: 300M  
+          limits:
+            cpu: 200m 
+            memory: 600M 
+status: {}
+
+```
+
+### creating service YAML 
+
+```
+kubectl  create  service loadbalancer  ashulb1  --tcp 1234:80 --dry-run=client -o yaml >loadbalancer.yaml 
+```
+
+### adding changes 
+
+```
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashulb1
+  name: ashulb1 # name of service 
+  namespace: ashu-project # name space 
+spec:
+  ports:
+  - name: 1234-80
+    port: 1234
+    protocol: TCP
+    targetPort: 80
+  selector: # pod finder 
+     app: ashu-app # exact label of pods 
+  type: LoadBalancer
+status:
+  loadBalancer: {}
+
+```
+
+### creating HPA yaml 
+
+```
+ 784  kubectl apply -f deployment.yaml 
+
+  786  kubectl autoscale deployment ashu-app --cpu-percent 70 --min 3 --max 15  --dry-run=client -o yaml   >hpa.yaml 
+  787  kubectl  delete -f deployment.yaml 
+```
+
+### adding changes in Hpa.yaml 
+```
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  creationTimestamp: null
+  name: ashu-app # name of hpa
+  namespace: ashu-project # namespace info 
+spec:
+  maxReplicas: 15
+  minReplicas: 3
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ashu-app
+  targetCPUUtilizationPercentage: 70
+status:
+  currentReplicas: 0
+  desiredReplicas: 0
+
+```
 
 
 
