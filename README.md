@@ -294,6 +294,58 @@ status: {}
 
 ```
 
+## Introduction to Ingress controller 
+
+<img src="ingress.png">
+
+### install/setup of Ingress controller in k8s cluster 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/ingress-nginx/main/deploy/static/provider/baremetal/deploy.yaml
+namespace/ingress-nginx created
+serviceaccount/ingress-nginx created
+serviceaccount/ingress-nginx-admission created
+role.rbac.authorization.k8s.io/ingress-nginx created
+role.rbac.authorization.k8s.io/ingress-nginx-admission created
+clusterrole.rbac.authorization.k8s.io/ingress-nginx created
+clusterrole.rbac.authorization.k8s.io/ingress-nginx-admission created
+rolebinding.rbac.authorization.k8s.io/ingress-nginx created
+rolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx created
+clusterrolebinding.rbac.authorization.k8s.io/ingress-nginx-admission created
+configmap/ingress-nginx-controller created
+service/ingress-nginx-controller created
+service/ingress-nginx-controller-admission created
+deployment.apps/ingress-nginx-controller created
+job.batch/ingress-nginx-admission-create created
+job.batch/ingress-nginx-admission-patch created
+ingressclass.networking.k8s.io/nginx created
+validatingwebhookconfiguration.admissionregistration.k8s.io/ingress-nginx-admission created
+[ashu@mobi-dockerserver ~]$ 
+
+
+```
+
+### lets verify 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl  get  deploy -n ingress-nginx 
+NAME                       READY   UP-TO-DATE   AVAILABLE   AGE
+ingress-nginx-controller   1/1     1            1           47s
+[ashu@mobi-dockerserver ~]$ 
+[ashu@mobi-dockerserver ~]$ 
+[ashu@mobi-dockerserver ~]$ 
+[ashu@mobi-dockerserver ~]$ kubectl  get  svc  -n ingress-nginx 
+NAME                                 TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)                      AGE
+ingress-nginx-controller             NodePort    10.103.209.64   <none>        80:31742/TCP,443:32357/TCP   60s
+ingress-nginx-controller-admission   ClusterIP   10.97.141.34    <none>        443/TCP                      60s
+[ashu@mobi-dockerserver ~]$ 
+
+
+
+```
+
+
 
 
 
