@@ -94,6 +94,11 @@ To https://github.com/redashu/ashumobi-ci.git
    f43c4c4..2d82d8a  master -> master
 ```
 
+### configuring auto build trigger in Jenkins using poll scm 
+
+<img src="trigger.png">
+
+
 
 
 
