@@ -226,6 +226,74 @@ ashu-app   Deployment/ashu-app   <unknown>/70%   3         15        3          
 
 ```
 
+## lets roll out changes in new image version 
+
+```
+[ashu@mobi-dockerserver app-deploy]$ kubectl  get  deploy 
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-app   3/3     3            3           11m
+[ashu@mobi-dockerserver app-deploy]$ kubectl  rollout restart deployment ashu-app 
+deployment.apps/ashu-app restarted
+[ashu@mobi-dockerserver app-deploy]$ kubectl  rollout status  deployment ashu-app 
+deployment "ashu-app" successfully rolled out
+[ashu@mobi-dockerserver app-deploy]$ kubectl  get  po 
+NAME                        READY   STATUS        RESTARTS   AGE
+ashu-app-6bd95ffd9d-qkvgt   1/1     Running       0          15s
+ashu-app-6bd95ffd9d-rvc2h   1/1     Running       0          12s
+ashu-app-6bd95ffd9d-vj8vk   1/1     Running       0          14s
+ashu-app-6d9d9b8578-7dv5l   1/1     Terminating   0          11m
+[ashu@mobi-dockerserver app-deploy]$ 
+```
+
+### ReadinessProbe In kubernetes 
+
+<img src="readiness.png">
+
+### adding in deployment yaml in pod template section 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels: # label  
+    app: ashu-app
+  name: ashu-app # name of deployment 
+  namespace: ashu-project # namespace info 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-app
+  strategy: {}
+  template: # to create pods 
+    metadata:
+      creationTimestamp: null
+      labels: # label of pdo 
+        app: ashu-app
+    spec:
+      containers:
+      - image: dockerashu/ashumobiwebapp:latest
+        name: ashumobiwebapp
+        ports:
+        - containerPort: 80
+        readinessProbe: # call by kubelet to do a health check
+          httpGet: # using http protocol
+            path: /health.html 
+            port: 80 
+          initialDelaySeconds: 3 # after pod deploy need 3 seconds 
+          periodSeconds: 10 # health check interval 
+        resources: # for pha purpose 
+          requests:
+            cpu: 100m
+            memory: 300M  
+          limits:
+            cpu: 200m 
+            memory: 600M 
+status: {}
+
+```
+
 
 
 
