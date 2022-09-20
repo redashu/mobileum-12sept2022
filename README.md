@@ -326,6 +326,90 @@ ashu-postgre-db-5b58fc8588-mr5g5   1/1     Running   0          8s
 
 ```
 
+## Introduction to secret 
+
+<img src="secret.png">
+
+### creating secret. 
+
+```
+ 917  kubectl  create  secret  generic  ashu-db-sec --from-literal        sqlpassword="Db@098#" --dry-run=client -o yaml >dbsecret.yaml 
+  918  history 
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  apply -f dbsecret.yaml 
+secret/ashu-db-sec created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  secret
+NAME          TYPE     DATA   AGE
+ashu-db-sec   Opaque   1      4s
+```
+
+### calling in deployment YAML 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-postgre-db
+  name: ashu-postgre-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-postgre-db
+  strategy: {}
+  template: # for creating pods 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-postgre-db
+    spec:
+      volumes: # for creating volume 
+      - name: ashuvol1 
+        hostPath: # type of volume --gonna take storage from Node 
+          path: /mnt/ashudb/ # using this location on the node
+          type: DirectoryOrCreate # if not present then create it 
+      containers:
+      - image: postgres
+        name: postgres
+        ports:
+        - containerPort: 5432
+        envFrom: # calling configMap
+        - configMapRef:
+            name: ashu-db-env # name of cofigmap 
+        env: # calling env 
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ashu-db-sec
+              key: sqlpassword
+        volumeMounts: # to attach volume created above
+        - name: ashuvol1
+          mountPath: /var/lib/postgresql/data/ # default db storage of postgres
+        
+        resources: {}
+status: {}
+
+```
+
+### redeploy it 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  apply -f dbsecret.yaml -f configmap.yaml -f postgre_deployment.yaml 
+secret/ashu-db-sec configured
+configmap/ashu-db-env configured
+deployment.apps/ashu-postgre-db created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  cm,secret,deploy
+NAME                         DATA   AGE
+configmap/ashu-db-env        1      34m
+configmap/kube-root-ca.crt   1      22h
+
+NAME                 TYPE     DATA   AGE
+secret/ashu-db-sec   Opaque   1      4m26s
+
+NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
+deployment.apps/ashu-postgre-db   1/1     1            1           28s
+```
 
 
 
