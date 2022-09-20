@@ -91,6 +91,63 @@ ashu-ingress-rule   nginx   jaipur.ashutoshh.in   172.31.83.42   80      40s
 
 <img src="ingresstr.png">
 
+## Dashboard 
+
+### Deploy 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl apply -f https://raw.githubusercontent.com/kubernetes/dashboard/v2.6.1/aio/deploy/recommended.yaml
+namespace/kubernetes-dashboard created
+serviceaccount/kubernetes-dashboard created
+service/kubernetes-dashboard created
+secret/kubernetes-dashboard-certs created
+secret/kubernetes-dashboard-csrf created
+secret/kubernetes-dashboard-key-holder created
+configmap/kubernetes-dashboard-settings created
+role.rbac.authorization.k8s.io/kubernetes-dashboard created
+clusterrole.rbac.authorization.k8s.io/kubernetes-dashboard created
+rolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+clusterrolebinding.rbac.authorization.k8s.io/kubernetes-dashboard created
+deployment.apps/kubernetes-dashboard created
+service/dashboard-metrics-scraper created
+deployment.apps/dashboard-metrics-scraper created
+```
+
+### verify 
+
+```
+kubectl get all -n kubernetes-dashboard
+```
+
+### checking token 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl  describe secrets cicd -n kubernetes-dashboard 
+Name:         cicd
+Namespace:    kubernetes-dashboard
+Labels:       <none>
+Annotations:  kubernetes.io/service-account.name: kubernetes-dashboard
+              kubernetes.io/service-account.uid: 342f02cc-b8d3-4f37-84d1-1a696a8c0a5e
+
+Type:  kubernetes.io/service-account-token
+
+Data
+====
+ca.crt:     1099 bytes
+namespace:  20 bytes
+token:      eyJhbGciOiJSUzI1Ni
+```
+
+### giving power to k8s dashboard to access application 
+
+```
+kubectl create clusterrolebinding power1 --clusterrole cluster-admin --serviceaccount=kubernetes-dashboard:kubernetes-dashboard
+clusterrolebinding.rbac.authorization.k8s.io/power1 created
+```
+
+
+
+
 
 
 
