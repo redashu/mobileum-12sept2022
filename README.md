@@ -526,6 +526,93 @@ ashu-mcpod   2/2     Running   0          4s    x=helloashu,z=hiashu
 [ashu@mobi-dockerserver ~]$ 
 
 ```
+## Understanding users in k8s 
+
+<img src="user.png">
+
+## creating kubeconfig file with limited access 
+
+### creating NS 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  create  ns  ashu-restricted 
+namespace/ashu-restricted created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  sa -n ashu-restricted 
+NAME      SECRETS   AGE
+default   0         41s
+[ashu@mobi-
+```
+
+### from k8s 1.24 onwards we have to create secret 
+
+```
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/service-account-token
+metadata:
+  name: ashu-sa-secret # name of secret 
+  namespace: ashu-restriced  # namespace 
+  annotations:
+    kubernetes.io/service-account.name: "default" # name of sa 
+```
+
+### creating 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl apply -f sa-secret.yaml 
+secret/ashu-sa-secret created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  sa -n ashu-restricted 
+NAME      SECRETS   AGE
+default   0         6m4s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  secret  -n ashu-restricted 
+NAME             TYPE                                  DATA   AGE
+ashu-sa-secret   kubernetes.io/service-account-token   3      15s
+[ashu@mobi-dockerserver k8s-resources]$ 
+
+
+```
+
+### kubeconfig file 
+
+```
+apiVersion: v1
+kind: Config 
+clusters:
+- name: ashu-k8s-cluster-dev-env 
+  cluster: 
+    server: https://44.209.211.99:6443 # apiserver URL 
+    certificate-authority-data: LS0tLS1CRUdJTiBDRVJUSUZJQ0FURS0tLS0tCk1JSUMvakNDQWVhZ0F3SUJBZ0lCQURBTkJna3Foa2lHOXcwQkFRc0ZBREFWTVJNd0VRWURWUVFERXdwcmRXSmwKY201bGRHVnpNQjRYRFRJeU1Ea3hNekExTkRFeU0xb1hEVE15TURreE1EQTFOREV5TTFvd0ZURVRNQkVHQTFVRQpBeE1LYTNWaVpYSnVaWFJsY3pDQ0FTSXdEUVlKS29aSWh2Y05BUUVCQlFBRGdnRVBBRENDQVFvQ2dnRUJBS3JkCnFtN1BnSUZHVGpVUjhWMTNOV2pBeGFmeHNlT25wVm85SG51aVd2cDFkbHVWT1YrQUtRTmpFc1ZEMTcvVTVxVlkKNytWSVUwc3pHWTNhWk9SdE5vSTRGRU5LMThWZk1qckJUejZCM1MwcVVWVTBPamhKNFpWeDhoNlMxUE1idHNnZQpCVmExalc5YkpnaS9CWnFmdHgzRFN3T3N1WDlwV3d1dFA1SCtLRXNHa2JTUmtpYTNzQU41UTBJQ21oS1RUWkxtCjNRb3dscnQ4K2pXVTBzUjdkU2JGdVd5YjUxZGx2cVA4a2lvOXExemdWZE9FN1FrSGRiNklNUHg4SG1XU0tIMmgKa1NMZGxnaCtraTJpMnRtNHJwSFVpNi9UVjlXWUo5K2xxSHhWMFcxSWFUSmtrV2pkelppcjRrSXJWMTl0Z0JLMApkRktDKzI2N1lvcjE3bDZxSmxNQ0F3RUFBYU5aTUZjd0RnWURWUjBQQVFIL0JBUURBZ0trTUE4R0ExVWRFd0VCCi93UUZNQU1CQWY4d0hRWURWUjBPQkJZRUZKcXJmQjJKc25YRW9yZzkweE1aQmZWcld2UERNQlVHQTFVZEVRUU8KTUF5Q0NtdDFZbVZ5Ym1WMFpYTXdEUVlKS29aSWh2Y05BUUVMQlFBRGdnRUJBQmZwbnIvZHNSbmlxSHZDdzJnOQpobFAwSXFmallTbW5yWkYwSzhxYjFtUWNtbWJBWkc2OWVsSURIR2lIZHE0NTBJNC80T3JLY3Y2TTBmd2tkMy95CjJkcnJVV2xhUHFZdVYxc1lWYUZPVFIyU1p3SkRCTzZoY1NzbDJPL0pDVVNYMGRVSVZPMXZkakNzOHNEc0czNloKRHlaaU5adGl3dVJaRzR6SzB0VVpReFRMVEFaRGl2SFVwT0RMZWlseFB0ZmtySW9LSVJBQ25YYXZOU29nL2ZTNQpMb1A1RHB3ejU1Yi9lUUkrMXc3L0JEYyt2WjlaZERxenZQUWo3N0RKZHJEaHM0OHovdWpEZXN4clpHK0NYV29CCmFDaXRmZkk1Qk9UZVd0RTZRQWxSNE5LTkk1b3NOSXNVbDJiTk1lWEdBVFpKcEtnb05PZnNmZ2JDM3o3OW0xNW8KUjRvPQotLS0tLUVORCBDRVJUSUZJQ0FURS0tLS0tCg==
+contexts:
+- name: ashu-dev-app-env 
+  context: 
+    namespace: ashu-restricted
+    cluster: ashu-k8s-cluster-dev-env
+    user: default # service account name 
+current-context: ashu-dev-app-env
+users: 
+- name: default # name of sa 
+  user: # user secret data 
+    token: eyJhbGciOiJSUzI1NiIsImtpZCI6ImRCMGlfQWRtLXY3WFZpbmlGVmtpZFV5RlhHSVlwLU03YU5RRUJHcmlIMkkifQ.eyJpc3MiOiJrdWJlcm5ldGVzL3NlcnZpY2VhY2NvdW50Iiwia3ViZXJuZXRlcy5pby9zZXJ2aWNlYWNjb3VudC9uYW1lc3BhY2UiOiJhc2h1LXJlc3RyaWN0ZWQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlY3JldC5uYW1lIjoiYXNodS1zYS1zZWNyZXQiLCJrdWJlcm5ldGVzLmlvL3NlcnZpY2VhY2NvdW50L3NlcnZpY2UtYWNjb3VudC5uYW1lIjoiZGVmYXVsdCIsImt1YmVybmV0ZXMuaW8vc2VydmljZWFjY291bnQvc2VydmljZS1hY2NvdW50LnVpZCI6IjU3MmQ5ZGVjLTkxNGUtNDYwZi04YzZmLWI0Yjg2NGNlMzIxZiIsInN1YiI6InN5c3RlbTpzZXJ2aWNlYWNjb3VudDphc2h1LXJlc3RyaWN0ZWQ6ZGVmYXVsdCJ9.p6TSMdHnWCdl5vVN5ajbHjQQx7TWc4mbWMoKK7fjifZsasBi_qe7jNu6-nXdoV136nofUwGyA5ZJTeTynaOegZmYsATNV0jD1hD71T0cvd9Hy9G2Fp_J3g0aHNK3A9z7NyRyhPBuNORzaHJtIBQ-51PjRhKKa13-qSZKU2wulb4jCHtrUcy7mBF71Bdl9W5c243xTYRgxLRKtKKHoItEXQ1PnbJ5FmGvG34dm80XPPW_-k-9NKYztMuy8gs9HHcdGeprXUCmZ7ZrH8J5uCWr68I-6QZbb1Hb_eaS7BYtvF-UYW6Q8cutHKP8ZjxBNy5Wvs7dQMrAyILM09VlO9ttmg
+```
+
+### token you can find using secret describe of service account 
+
+```
+ kubectl describe  secret  ashu-sa-secret   -n ashu-restricted 
+```
+### now using that file to authentication k8s 
+
+```
+  936  kubectl  get  nodes --kubeconfig customk8s.yaml 
+  937  kubectl  cluster-info --kubeconfig customk8s.yaml 
+  938  kubectl version  --kubeconfig customk8s.yaml 
+  939  history 
+[ashu@mobi-dockerserver myimages]$ kubectl  cluster-info --kubeconfig customk8s.yaml 
+
+To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
+Error from server (Forbidden): services is forbidden: User "system:serviceaccount:ashu-restricted:default" cannot list resource "services" in A
+```
+
 
 
 
