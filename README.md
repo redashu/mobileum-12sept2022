@@ -226,6 +226,106 @@ service/ashusvc1   NodePort   10.97.213.189   <none>        1234:31111/TCP   10s
   897  kubectl create service nodeport  ashusvc1 --tcp 1234:80 --namespace ashuk8s1 --dry-run=client -o yaml 
 ```
 
+##  Storage in Kubernetes 
+
+<img src="st.png">
+
+### Deploy postgresql in k8s using deployment 
+
+<img src="postg.png">
+
+### creating a deployment File 
+
+```
+kubectl  create  deployment  ashu-postgre-db --image=postgres --port=5432  --dry-run=client -o yaml  >postgre_deployment.yaml 
+```
+
+### creating configMap to store Env section of Deployment 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  create configmap  ashu-db-env --from-literal POSTGRES_USER="admin" --from-literal POSTGRES_PASSWORD="Db@098#" --dry-run=client -o yaml 
+apiVersion: v1
+data:
+  POSTGRES_PASSWORD: Db@098#
+  POSTGRES_USER: admin
+kind: ConfigMap
+metadata:
+  creationTimestamp: null
+  name: ashu-db-env
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  create configmap  ashu-db-env --from-literal POSTGRES_USER="admin" --from-literal POSTGRES_PASSWORD="Db@098#" --dry-run=client -o yaml  >configmap.yaml
+[ashu@mobi-dockerserver k8s-resources]$ 
+
+```
+
+### creating cm 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl apply -f configmap.yaml 
+configmap/ashu-db-env created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  cm 
+NAME               DATA   AGE
+ashu-db-env        2      4s
+```
+
+### adding storage hostPath in deployment and final yaml 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-postgre-db
+  name: ashu-postgre-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-postgre-db
+  strategy: {}
+  template: # for creating pods 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-postgre-db
+    spec:
+      volumes: # for creating volume 
+      - name: ashuvol1 
+        hostPath: # type of volume --gonna take storage from Node 
+          path: /mnt/ashudb/ # using this location on the node
+          type: DirectoryOrCreate # if not present then create it 
+      containers:
+      - image: postgres
+        name: postgres
+        ports:
+        - containerPort: 5432
+        envFrom: # calling configMap
+        - configMapRef:
+            name: ashu-db-env # name of cofigmap 
+        volumeMounts: # to attach volume created above
+        - name: ashuvol1
+          mountPath: /var/lib/postgresql/data/ # default db storage of postgres
+        
+        resources: {}
+status: {}
+
+```
+
+###lets deploy it 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl apply -f postgre_deployment.yaml 
+deployment.apps/ashu-postgre-db created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  deploy 
+NAME              READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-postgre-db   1/1     1            1           4s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  po
+NAME                               READY   STATUS    RESTARTS   AGE
+ashu-postgre-db-5b58fc8588-mr5g5   1/1     Running   0          8s
+[ashu@mobi-dockerserver k8s-resources]$ 
+
+```
+
 
 
 
