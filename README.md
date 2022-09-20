@@ -87,6 +87,10 @@ ashu-ingress-rule   nginx   jaipur.ashutoshh.in   172.31.83.42   80      40s
 ```
 
 
+### Ingress traffic flow 
+
+<img src="ingresstr.png">
+
 
 
 
