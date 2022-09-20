@@ -613,6 +613,47 @@ To further debug and diagnose cluster problems, use 'kubectl cluster-info dump'.
 Error from server (Forbidden): services is forbidden: User "system:serviceaccount:ashu-restricted:default" cannot list resource "services" in A
 ```
 
+### creating role for ashu-restricted namespace 
+
+```
+kubectl  create  role  ashu-pod-access --resource=pods --verb=get --verb=list  --namespace ashu-restricted --dry-run=client -o yaml >role1.yaml
+```
+
+####
+
+```
+[ashu@mobi-dockerserver myimages]$ kubectl apply -f role1.yaml 
+role.rbac.authorization.k8s.io/ashu-pod-access created
+[ashu@mobi-dockerserver myimages]$ kubectl  get  roles -n ashu-restricted 
+NAME              CREATED AT
+ashu-pod-access   2022-09-20T14:51:54Z
+[ashu@mobi-dockerserver myimages]$ 
+
+```
+
+### creating rolebinding to bind role with service account 
+
+```
+kubectl  create rolebinding bind1 --role ashu-pod-access --serviceaccount=ashu-restricted:default -n ashu-restricted
+[ashu@mobi-dockerserver myimages]$ kubectl  get  rolebindings -n ashu-restricted 
+NAME    ROLE                   AGE
+bind1   Role/ashu-pod-access   63s
+```
+
+### verify it 
+
+```
+[ashu@mobi-dockerserver myimages]$ kubectl  get  po  --kubeconfig customk8s.yaml 
+No resources found in ashu-restricted namespace.
+[ashu@mobi-dockerserver myimages]$ 
+[ashu@mobi-dockerserver myimages]$ kubectl  get  svc  --kubeconfig customk8s.yaml 
+Error from server (Forbidden): services is forbidden: User "system:serviceaccount:ashu-restricted:default" cannot list resource "services" in API group "" in the namespace "ashu-restricted"
+[ashu@mobi-dockerserver myimages]$ kubectl  get  ns  --kubeconfig customk8s.yaml 
+Error from server (Forbidden): namespaces is forbidden: User "system:serviceaccount:ashu-restricted:default" cannot list resource "namespaces" in API group "" at the cluster scope
+[ashu@mobi-dockerserver myimages]$ 
+```
+
+
 
 
 
