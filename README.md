@@ -411,7 +411,121 @@ NAME                              READY   UP-TO-DATE   AVAILABLE   AGE
 deployment.apps/ashu-postgre-db   1/1     1            1           28s
 ```
 
+### cleaning namespace data 
 
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl delete all --all
+pod "ashu-postgre-db-7bcf848ff9-l99vx" deleted
+deployment.apps "ashu-postgre-db" deleted
+replicaset.apps "ashu-postgre-db-7bcf848ff9" deleted
+[ashu@mobi-dockerserver k8s-resources]$ kubectl delete cm,secret --all
+configmap "ashu-db-env" deleted
+configmap "kube-root-ca.crt" deleted
+secret "ashu-db-sec" deleted
+[ashu@mobi-dockerserver k8s-resources]$ 
+```
+
+### using multi container pod concept 
+
+<img src="mcpod.png">
+
+### understanding mounting concept 
+
+<img src="mount.png">
+
+### YAML 
+
+```
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ashu-mcpod
+  labels: # label of pod 
+    x: helloashu
+    z: hiashu
+spec: 
+  volumes: # creating volume 
+  - name: ashutest-vol1
+    hostPath:
+      path: /mnt/ashudata
+      type: DirectoryOrCreate 
+  containers:  # creating container 
+  - name: ashuc2 
+    image: nginx 
+    volumeMounts:
+    - name: ashutest-vol1
+      mountPath: /usr/share/nginx/html/
+      readOnly: True 
+  - name: ashuc1
+    image: alpine 
+    volumeMounts:
+    - name: ashutest-vol1
+      mountPath: /opt/data/
+    command: ['/bin/sh','-c','while true;do uptime >>/opt/data/load.txt;sleep 10;done']
+```
+
+### Deploy it 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl apply -f multi-container.yaml 
+pod/ashu-mcpod created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl  get  po 
+NAME         READY   STATUS    RESTARTS   AGE
+ashu-mcpod   2/2     Running   0          4s
+[ashu@mobi-dockerserver k8s-resources]$ 
+
+```
+
+### verify it 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl  get  po 
+NAME         READY   STATUS    RESTARTS   AGE
+ashu-mcpod   2/2     Running   0          75s
+[ashu@mobi-dockerserver ~]$ kubectl  exec -it  ashu-mcpod  -- bash 
+Defaulted container "ashuc2" out of: ashuc2, ashuc1
+root@ashu-mcpod:/# 
+root@ashu-mcpod:/# 
+root@ashu-mcpod:/# 
+root@ashu-mcpod:/# cd  /usr/share/nginx/html/
+root@ashu-mcpod:/usr/share/nginx/html# ls
+load.txt
+root@ashu-mcpod:/usr/share/nginx/html# rm load.txt 
+rm: cannot remove 'load.txt': Read-only file system
+root@ashu-mcpod:/usr/share/nginx/html# 
+exit
+command terminated with exit code 1
+[ashu@mobi-dockerserver ~]$ kubectl  exec -it  ashu-mcpod  -c ashuc1 -- sh 
+/ # cd /opt/data/
+/opt/data # ls
+load.txt
+/opt/data # mkdir hhhelloo
+/opt/data # ls
+hhhelloo  load.txt
+/opt/data # exit
+[ashu@mobi-dockerserver ~]$ 
+```
+### exposing pod with Nodeport service 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl  get po --show-labels 
+NAME         READY   STATUS    RESTARTS   AGE   LABELS
+ashu-mcpod   2/2     Running   0          13m   x=helloashu,z=hiashu
+[ashu@mobi-dockerserver ~]$ 
+[ashu@mobi-dockerserver ~]$ kubectl expose pod ashu-mcpod --type  NodePort --port 80 --name ashulb008 
+service/ashulb008 exposed
+[ashu@mobi-dockerserver ~]$ kubectl  get  svc
+NAME        TYPE       CLUSTER-IP       EXTERNAL-IP   PORT(S)        AGE
+ashulb008   NodePort   10.109.144.186   <none>        80:31982/TCP   3s
+[ashu@mobi-dockerserver ~]$ kubectl  get po --show-labels 
+NAME         READY   STATUS              RESTARTS   AGE   LABELS
+ashu-mcpod   0/2     ContainerCreating   0          0s    x=helloashu,z=hiashu
+[ashu@mobi-dockerserver ~]$ kubectl  get po --show-labels 
+NAME         READY   STATUS    RESTARTS   AGE   LABELS
+ashu-mcpod   2/2     Running   0          4s    x=helloashu,z=hiashu
+[ashu@mobi-dockerserver ~]$ 
+
+```
 
 
 
