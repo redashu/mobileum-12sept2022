@@ -146,6 +146,86 @@ clusterrolebinding.rbac.authorization.k8s.io/power1 created
 ```
 
 
+### SIngle yaml task solution 
+
+```
+apiVersion: v1
+kind: Namespace
+metadata:
+  creationTimestamp: null
+  name: ashuk8s1
+spec: {}
+status: {}
+---
+apiVersion: v1
+kind: Pod
+metadata:
+  creationTimestamp: null
+  labels:
+    run: pod1
+  name: pod1
+  namespace: ashuk8s1
+spec:
+  containers:
+  - command:
+    - sleep
+    - "10000"
+    image: ubuntu
+    name: pod1
+    resources: {}
+  dnsPolicy: ClusterFirst
+  restartPolicy: Always
+status: {}
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashusvc1
+  name: ashusvc1
+  namespace: ashuk8s1
+spec:
+  ports:
+  - name: 1234-80
+    port: 1234
+    protocol: TCP
+    targetPort: 80
+    nodePort: 31111
+  selector:
+    app: ashusvc1
+  type: NodePort
+status:
+  loadBalancer: {}
+```
+
+### deploy it 
+
+```
+[ashu@mobi-dockerserver k8s-resources]$ kubectl apply -f mytask.yaml 
+namespace/ashuk8s1 created
+pod/pod1 created
+service/ashusvc1 created
+[ashu@mobi-dockerserver k8s-resources]$ kubectl get po,svc -n ashuk8s1 
+NAME       READY   STATUS    RESTARTS   AGE
+pod/pod1   1/1     Running   0          10s
+
+NAME               TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)          AGE
+service/ashusvc1   NodePort   10.97.213.189   <none>        1234:31111/TCP   10s
+[ashu@mobi-dockerserver k8s-resources]$ kubectl -n ashuk8s1 cp  q1.yaml   pod1:/tmp/
+[ashu@mobi-dockerserver k8s-resources]$ 
+```
+
+### commands to create YAML 
+
+```
+ 894  kubectl create ns  ashuk8s1  --dry-run=client -o yaml 
+  895  kubectl run pod1 --image=ubuntu --command sleep 10000 --namespace ashuk8s1 --dry-run=client -o yaml 
+  896  history 
+  897  kubectl create service nodeport  ashusvc1 --tcp 1234:80 --namespace ashuk8s1 --dry-run=client -o yaml 
+```
+
 
 
 
