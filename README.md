@@ -11,6 +11,7 @@ CURRENT   NAME                          CLUSTER      AUTHINFO           NAMESPAC
 [ashu@mobi-dockerserver myimages]$ kubectl delete all --all
 No resources found
 [ashu@mobi-dockerserver myimages]$ 
+
 ```
 
 ### Revision 
@@ -31,6 +32,7 @@ No resources found
 
 ```
 kubectl  create deployment  ashuapp --image=phx.ocir.io/axmbtg8judkl/ashuweb:mobiv1  --port 80 --dry-run=client -o yaml >privateimg.yaml
+
 ```
 
 ### deploy it 
@@ -47,6 +49,7 @@ deployment.apps/ashuapp configured
 [ashu@mobi-dockerserver k8s-resources]$ kubectl  apply  -f  privateimg.yaml 
 deployment.apps/ashuapp configured
 [ashu@mobi-dockerserver k8s-resources]$ 
+
 ```
 
 ### lets analyse 
@@ -82,6 +85,7 @@ LAST SEEN   TYPE      REASON              OBJECT                          MESSAG
 
 ```
 kubectl create secret  docker-registry  ashuimg-secret --docker-server phx.ocir.io --docker-username axmbdkl/learyme@gmail.com --docker-password "c0tGy-SQSs"  --dry-run=client -o yaml >imgsecret.yaml
+
 ```
 
 ### deploy it 
@@ -97,6 +101,7 @@ ashuimg-secret   kubernetes.io/dockerconfigjson   1      91s
 [ashu@mobi-dockerserver k8s-resources]$ kubectl  get  deploy 
 NAME      READY   UP-TO-DATE   AVAILABLE   AGE
 ashuapp   0/1     1            0           14m
+
 ```
 
 ### updated Deployment yAML 
@@ -147,6 +152,7 @@ ashuapp-5cd7fcfd99-7hjms   1/1     Running   0          81s
 [ashu@mobi-dockerserver k8s-resources]$ kubectl  get  po -owide
 NAME                       READY   STATUS    RESTARTS   AGE   IP              NODE    NOMINATED NODE   READINESS GATES
 ashuapp-5cd7fcfd99-7hjms   1/1     Running   0          87s   192.168.135.2   node3   <none>           <none>
+
 ```
 
 ### creating service 
@@ -161,6 +167,7 @@ service/ashulb1 exposed
 NAME      TYPE       CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
 ashulb1   NodePort   10.108.120.59   <none>        80:32517/TCP   3s
 [ashu@mobi-dockerserver k8s-resources]$ 
+
 ```
 
 ## taking webapp + Db example in k8s 
@@ -182,6 +189,8 @@ ashulb1   NodePort   10.108.120.59   <none>        80:32517/TCP   3s
 ## Demo to understand PV and PVC 
 
 ### PV YAML 
+
+```
 
 apiVersion: v1
 kind: PersistentVolume
@@ -213,6 +222,7 @@ atul-pv-volume    3Gi        RWO            Retain           Available          
 fjv-pv-volume     3Gi        RWO            Retain           Available           manual                  30s
 nuno-pv-volume    3Gi        RWX            Retain           Available           manual                  11s
 sofia-pv-volume   9Gi        RWX            Retain           Available           manual                  24s
+
 ```
 
 ### creating PVC 
