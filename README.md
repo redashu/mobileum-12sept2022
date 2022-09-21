@@ -321,5 +321,79 @@ hello i am 192.168.135.62
 
 <img src="concept.png">
 
+## Delete resources 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl delete  all --all
+pod "ashutest-5b98dd8f9-b457f" deleted
+pod "ashutest-5b98dd8f9-bgf6t" deleted
+deployment.apps "ashutest" deleted
+replicaset.apps "ashutest-5785466d45" deleted
+ashu@mobi-dockerserver storage-k8s]$ kubectl  get pvc
+NAME            STATUS   VOLUME            CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+ashu-pv-claim   Bound    vasco-pv-volume   3Gi        RWX            manual         37m
+[ashu@mobi-dockerserver storage-k8s]$ kubectl delete pvc ashu-pv-claim 
+persistentvolumeclaim "ashu-pv-claim" deleted
+```
+
+## application Demo --
+
+### creating NFS based PV 
+
+```
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ashu-pv-nfs # name of pv 
+  labels: # label of pv 
+    type: ashu-pv 
+spec:
+  storageClassName: manual # we are creating pv manually 
+  capacity:
+    storage: 7Gi # 3Gi -range - 10Gi 
+  accessModes: # how to use these pv by Nodes 
+    - ReadWriteOnce # RWO , RWM , ROM 
+  nfs: # pv taking storage from NFS 
+    server: 172.31.95.147 # Ip address of NFS 
+    path: /common/db/ashu/ # path location on NFS server 
+```
+
+### deploy it 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl apply -f nfs-pv.yaml 
+persistentvolume/ashu-pv-nfs created
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  pv ashu-pv-nfs 
+NAME          CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   REASON   AGE
+ashu-pv-nfs   7Gi        RWO            Retain           Available           manual                  10s
+[ashu@mobi-dockerserver storage-k8s]$ 
+```
+
+### creating pvc nfs based 
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ashu-pv-claim-nfs
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce # change access mode 
+  resources:
+    requests:
+      storage: 7Gi # size we need 
+```
+
+###
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  apply -f nfs-pvc.yaml 
+persistentvolumeclaim/ashu-pv-claim-nfs created
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get pvc
+NAME                STATUS   VOLUME        CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+ashu-pv-claim-nfs   Bound    ashu-pv-nfs   7Gi        RWO            manual         4s
+[ashu@mobi-dockerserver storage-k8s]$ 
+```
 
 
