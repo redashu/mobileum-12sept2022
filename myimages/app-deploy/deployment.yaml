@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels: # label  
+    app: ashu-app
+  name: ashu-app # name of deployment 
+  namespace: ashu-project # namespace info 
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-app
+  strategy: {}
+  template: # to create pods 
+    metadata:
+      creationTimestamp: null
+      labels: # label of pdo 
+        app: ashu-app
+    spec:
+      containers:
+      - image: dockerashu/ashumobiwebapp:latest
+        name: ashumobiwebapp
+        ports:
+        - containerPort: 80
+        readinessProbe: # call by kubelet to do a health check
+          httpGet: # using http protocol
+            path: /health.html 
+            port: 80 
+          initialDelaySeconds: 3 # after pod deploy need 3 seconds 
+          periodSeconds: 10 # health check interval 
+        resources: # for pha purpose 
+          requests:
+            cpu: 100m
+            memory: 300M  
+          limits:
+            cpu: 200m 
+            memory: 600M 
+status: {}

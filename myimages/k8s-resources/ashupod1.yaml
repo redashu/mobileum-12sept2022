@@ -1,0 +1,9 @@
+apiVersion: v1 
+kind: Pod # type of resource 
+metadata: # info about resource 
+  name: ashupod-1234  # name of pod 
+spec: # application info 
+  containers:
+  - name: ashuc1  
+    image: alpine # by default it will pull image from Docker hub
+    command: ["/bin/sh","-c","ping fb.com"] # default process of container 

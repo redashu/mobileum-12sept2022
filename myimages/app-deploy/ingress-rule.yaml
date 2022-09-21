@@ -1,0 +1,20 @@
+apiVersion: networking.k8s.io/v1
+kind: Ingress
+metadata:
+  name: ashu-ingress-rule
+  namespace: ashu-project # adding namespace 
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  ingressClassName: nginx # other examples like haproxy,trefik , kong 
+  rules:
+  - host: jaipur.ashutoshh.in  # yourname.ashutoshh.in 
+    http:
+      paths:
+      - path: / # homepage / home path of your app 
+        pathType: Prefix
+        backend:
+          service:
+            name: ashulb001 # name of service to forward traffice 
+            port:
+              number: 1234 # port of service 

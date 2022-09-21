@@ -1,0 +1,21 @@
+version: '3.8'
+networks: # to create network 
+  ashubr2: # name of network bridge
+  ashubr3: 
+services:
+  ashuapp0001: 
+    image: alpine
+    container_name: ashucc11
+    networks: 
+    - ashubr3 
+    command: ping fb.com 
+  ashuwebapp007:
+    image: ashunginx:appv1 # image i want to build
+    build: # calling dockerfile to build image 
+      context: . 
+      dockerfile: Dockerfile
+    container_name: ashungc1 # name of container 
+    ports: # port forwarding rule 
+    - "1234:80"
+    networks: # to attach network to container 
+    - ashubr2

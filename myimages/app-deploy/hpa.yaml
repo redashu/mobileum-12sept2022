@@ -1,0 +1,17 @@
+apiVersion: autoscaling/v1
+kind: HorizontalPodAutoscaler
+metadata:
+  creationTimestamp: null
+  name: ashu-app # name of hpa
+  namespace: ashu-project # namespace info 
+spec:
+  maxReplicas: 15
+  minReplicas: 3
+  scaleTargetRef:
+    apiVersion: apps/v1
+    kind: Deployment
+    name: ashu-app
+  targetCPUUtilizationPercentage: 70
+status:
+  currentReplicas: 0
+  desiredReplicas: 0

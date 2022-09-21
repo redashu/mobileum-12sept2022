@@ -1,0 +1,49 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-deploy
+  name: ashu-deploy
+spec:
+  replicas: 1 # number of pods we want to deploy 
+  selector:
+    matchLabels:
+      app: ashu-deploy
+  strategy: {} # deployment strategy 
+  template: # this will be used to create pods 
+    metadata:
+      creationTimestamp: null
+      labels: # label of pods 
+        app: ashu-deploy
+    spec:
+      containers:
+      - image: docker.io/dockerashu/mobicustomer:v1
+        name: mobicustomer
+        ports:
+        - containerPort: 80
+        env: # to call Env section of docker image 
+        - name: deploy # name of Env from Dockerfile 
+          value: webapp2 # value of env 
+        resources: {}
+status: {}
+
+---
+
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ss11
+  name: ss11
+spec:
+  ports:
+  - name: 1234-80
+    port: 1234
+    protocol: TCP
+    targetPort: 80
+  selector: # pod finder  using label of pods 
+    app: ashu-deploy # label of pod 
+  type: NodePort
+

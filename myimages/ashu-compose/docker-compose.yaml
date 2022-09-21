@@ -1,0 +1,13 @@
+version: '3.8' # compose file version 
+services: # number of application you want to manage 
+  ashu-pythonapp:
+    image: ashupyimg:v1 # image i want to build
+    build:  # calling image build instruction 
+      context: ../pythoncode # location of Dockerfile 
+      dockerfile: Dockerfile # name of dockerfile 
+    container_name: ashupyc1 
+    
+  ashuapp-frontend: 
+    image: alpine
+    container_name: ashuc1
+    command: ping fb.com

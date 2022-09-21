@@ -1,0 +1,11 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ashu-pv-claim-nfs
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteOnce # change access mode 
+  resources:
+    requests:
+      storage: 7Gi # size we need 

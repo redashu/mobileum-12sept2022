@@ -1,0 +1,10 @@
+version: '3.8'
+services:
+  ashuwebapp:
+    image: ashunginx:appv1 # image i want to build
+    build: # calling dockerfile to build image 
+      context: ../webapps
+      dockerfile: Dockerfile
+    container_name: ashungc1 # name of container 
+    ports: # port forwarding rule 
+    - "1234:80"

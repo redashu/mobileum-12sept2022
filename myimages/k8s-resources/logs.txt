@@ -1,0 +1,22 @@
+PING fb.com (157.240.3.35): 56 data bytes
+64 bytes from 157.240.3.35: seq=0 ttl=35 time=74.748 ms
+64 bytes from 157.240.3.35: seq=1 ttl=35 time=74.735 ms
+64 bytes from 157.240.3.35: seq=2 ttl=35 time=74.798 ms
+64 bytes from 157.240.3.35: seq=3 ttl=35 time=74.798 ms
+64 bytes from 157.240.3.35: seq=4 ttl=35 time=74.728 ms
+64 bytes from 157.240.3.35: seq=5 ttl=35 time=74.767 ms
+64 bytes from 157.240.3.35: seq=6 ttl=35 time=74.780 ms
+64 bytes from 157.240.3.35: seq=7 ttl=35 time=74.791 ms
+64 bytes from 157.240.3.35: seq=8 ttl=35 time=74.777 ms
+64 bytes from 157.240.3.35: seq=9 ttl=35 time=74.799 ms
+64 bytes from 157.240.3.35: seq=10 ttl=35 time=74.776 ms
+64 bytes from 157.240.3.35: seq=11 ttl=35 time=74.781 ms
+64 bytes from 157.240.3.35: seq=12 ttl=35 time=74.788 ms
+64 bytes from 157.240.3.35: seq=13 ttl=35 time=74.808 ms
+64 bytes from 157.240.3.35: seq=14 ttl=35 time=74.799 ms
+64 bytes from 157.240.3.35: seq=15 ttl=35 time=75.447 ms
+64 bytes from 157.240.3.35: seq=16 ttl=35 time=74.794 ms
+64 bytes from 157.240.3.35: seq=17 ttl=35 time=74.773 ms
+64 bytes from 157.240.3.35: seq=18 ttl=35 time=74.805 ms
+64 bytes from 157.240.3.35: seq=19 ttl=35 time=74.760 ms
+64 bytes from 157.240.3.35: seq=20 ttl=35 time=74.791 ms

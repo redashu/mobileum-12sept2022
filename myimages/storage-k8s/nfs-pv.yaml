@@ -1,0 +1,15 @@
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ashu-pv-nfs # name of pv 
+  labels: # label of pv 
+    type: ashu-pv 
+spec:
+  storageClassName: manual # we are creating pv manually 
+  capacity:
+    storage: 7Gi # 3Gi -range - 10Gi 
+  accessModes: # how to use these pv by Nodes 
+    - ReadWriteOnce # RWO , RWM , ROM 
+  nfs: # pv taking storage from NFS 
+    server: 172.31.95.147 # Ip address of NFS 
+    path: /common/db/ashu/ # path location on NFS server 

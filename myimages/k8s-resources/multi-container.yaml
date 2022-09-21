@@ -1,0 +1,26 @@
+apiVersion: v1
+kind: Pod
+metadata:
+  name: ashu-mcpod
+  labels: # label of pod 
+    x: helloashu
+    z: hiashu
+spec: 
+  volumes: # creating volume 
+  - name: ashutest-vol1
+    hostPath:
+      path: /mnt/ashudata
+      type: DirectoryOrCreate 
+  containers:  # creating container 
+  - name: ashuc2 
+    image: nginx 
+    volumeMounts:
+    - name: ashutest-vol1
+      mountPath: /usr/share/nginx/html/
+      readOnly: True 
+  - name: ashuc1
+    image: alpine 
+    volumeMounts:
+    - name: ashutest-vol1
+      mountPath: /opt/data/
+    command: ['/bin/sh','-c','while true;do uptime >>/opt/data/load.txt;sleep 10;done']

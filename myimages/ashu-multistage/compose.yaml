@@ -1,0 +1,11 @@
+version: '3.8'
+services:
+  ashuspring:
+    image: ashuspring:v1 
+    build: . 
+    container_name: ashujjcc1
+    ports:
+    - "3355:8080" 
+    restart: always # container restart policy setting 
+    mem_limit: 512m
+    cpus: 0.5

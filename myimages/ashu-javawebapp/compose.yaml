@@ -1,0 +1,9 @@
+services:
+  ashujavaapp:
+    build: # calling dockerfile 
+      context: ./javawebapp
+      dockerfile: Dockerfile
+    image: ashujavaweb:appv1  # name of image i want to build
+    container_name: ashujc1
+    ports:
+    - "2244:8080"

@@ -1,0 +1,35 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashud1
+  name: ashud1
+spec:
+  replicas: 1 # number of pod 
+  selector:
+    matchLabels:
+      app: ashud1
+  strategy: {}
+  template: # to create pods 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashud1
+    spec:
+      containers:
+      - image: dockerashu/mobicustomer:v2
+        name: mobicustomer
+        ports:
+        - containerPort: 80
+        env:  # adding Env section 
+        - name: deploy
+          value: webapp1 
+        resources: # adding cgroups 
+          requests: # default request 
+            cpu: 100m # 1vcpu = 1000m -- milicore 
+            memory: 300M 
+          limits: # max usage 
+            cpu: 200m 
+            memory: 500M 
+status: {}

@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-db
+  name: ashu-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-db
+  strategy: {}
+  template: # for creating db pods 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-db
+    spec:
+      volumes: # creating volume 
+      - name: ashudb-vol # name of volume 
+        persistentVolumeClaim: # taking from PVC 
+          claimName: ashu-pv-claim-nfs # claimName 
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        ports:
+        - containerPort: 3306
+        volumeMounts: # attaching volume to db pod 
+        - name: ashudb-vol
+          mountPath: /var/lib/mysql/ # default location to store databases 
+        env: # to create / update values 
+        - name: MYSQL_DATABASE
+          valueFrom: # reading value from somewhere 
+            configMapKeyRef: 
+              name: ashu-db-cm  # name of cm
+              key: dbname # key of cm 
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef: 
+              name: ashudb-pass # name of secret 
+              key: dbpassword # key of secret 
+        resources: {}
+status: {}

@@ -1,0 +1,46 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: mydep1
+  name: mydep1
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: mydep1
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: mydep1
+    spec:
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        env: 
+        - name: MYSQL_ROOT_PASSWORD
+          value: "Db@098#"
+        resources: {}
+status: {}
+---
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ss11
+  name: ss11
+spec:
+  ports:
+  - name: 1234-3306
+    port: 1234
+    protocol: TCP
+    targetPort: 3306
+  selector:
+    app: mydep1
+  type: ClusterIP
+status:
+  loadBalancer: {}

@@ -1,0 +1,19 @@
+apiVersion: v1
+kind: Service
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashulb001
+  name: ashulb001
+  namespace: ashu-project # adding namespace 
+spec:
+  ports:
+  - name: 1234-80
+    port: 1234
+    protocol: TCP
+    targetPort: 80
+  selector: # updating label of pods 
+    app: ashu-app
+  type: ClusterIP # type of service 
+status:
+  loadBalancer: {}

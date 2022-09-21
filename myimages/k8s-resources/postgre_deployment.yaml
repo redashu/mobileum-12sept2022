@@ -1,0 +1,44 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-postgre-db
+  name: ashu-postgre-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-postgre-db
+  strategy: {}
+  template: # for creating pods 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-postgre-db
+    spec:
+      volumes: # for creating volume 
+      - name: ashuvol1 
+        hostPath: # type of volume --gonna take storage from Node 
+          path: /mnt/ashudb/ # using this location on the node
+          type: DirectoryOrCreate # if not present then create it 
+      containers:
+      - image: postgres
+        name: postgres
+        ports:
+        - containerPort: 5432
+        envFrom: # calling configMap
+        - configMapRef:
+            name: ashu-db-env # name of cofigmap 
+        env: # calling env 
+        - name: POSTGRES_PASSWORD
+          valueFrom:
+            secretKeyRef:
+              name: ashu-db-sec
+              key: sqlpassword
+        volumeMounts: # to attach volume created above
+        - name: ashuvol1
+          mountPath: /var/lib/postgresql/data/ # default db storage of postgres
+        
+        resources: {}
+status: {}

@@ -1,0 +1,39 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-webapp
+  name: ashu-webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-webapp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-webapp
+    spec:
+      containers:
+      - image: wordpress:4.8-apache
+        name: wordpress
+        ports:
+        - containerPort: 80
+        env: # to connection DB from webapp 
+        - name: WORDPRESS_DB_PASSWORD # db root password 
+          valueFrom:
+            secretKeyRef:
+              name: ashudb-pass
+              key: dbpassword
+        - name: WORDPRESS_DB_HOST # hostname of DB 
+          value: ashu-db-server # service name of DB deployment 
+        - name: WORDPRESS_DB_NAME # db name to connect 
+          valueFrom:
+            configMapKeyRef:
+              name: ashu-db-cm
+              key: dbname
+        resources: {}
+status: {}

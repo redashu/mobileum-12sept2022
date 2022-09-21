@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashutest
+  name: ashutest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashutest
+  strategy: {}
+  template: # template 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashutest
+    spec:
+      nodeName: node3 # checking with static scheduling 
+      volumes: # creating volume 
+      - name: ashuvol-999
+        persistentVolumeClaim: # taking storage from PVC 
+          claimName: ashu-pv-claim # name of your pvc 
+      containers:
+      - image: alpine
+        name: alpine
+        volumeMounts:  # mounting volume inside container 
+        - name: ashuvol-999
+          mountPath: /mnt/logs/
+        command: ['/bin/sh','-c','while true;do echo "hello i am `hostname -i`" >>/mnt/logs/info.txt;sleep 20;done']
+        resources: {}
+status: {}
