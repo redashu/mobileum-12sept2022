@@ -163,3 +163,19 @@ ashulb1   NodePort   10.108.120.59   <none>        80:32517/TCP   3s
 [ashu@mobi-dockerserver k8s-resources]$ 
 ```
 
+## taking webapp + Db example in k8s 
+
+<img src="demo.png">
+
+### Understanding PV 
+
+<img src="pv.png">
+
+### PV provisoning methods 
+
+<img src="pv-dynamic.png">
+
+### PVC -- namespace Resource 
+
+<img src="pvc.png">
+
