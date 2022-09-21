@@ -581,5 +581,9 @@ ashu-db       1/1     1            1           111m
 ashu-webapp   1/1     1            1           18s
 ```
 
+### DB connection and CoreDNs understanding 
+
+<img src="db4.png">
+
 
 
