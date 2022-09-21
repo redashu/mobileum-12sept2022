@@ -722,5 +722,78 @@ health-ingress.yaml  ingress.yaml  prometheusrules.yaml  servicemonitor.yaml
 
 ```
 
+### argocd cross checking 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl  get  pod -n argocd 
+NAME                                                READY   STATUS    RESTARTS   AGE
+argocd-application-controller-0                     1/1     Running   0          9h
+argocd-applicationset-controller-6676c4d655-2mcqs   1/1     Running   0          9h
+argocd-dex-server-5f9bd56758-89ffm                  1/1     Running   0          9h
+argocd-notifications-controller-5bc766fc6d-xhkh2    1/1     Running   0          9h
+argocd-redis-6fd7cbd95d-2ks56                       1/1     Running   0          9h
+argocd-repo-server-5bb545d667-756wm                 1/1     Running   0          9h
+argocd-server-6b88fbcbb8-7zzbq                      1/1     Running   0          9h
+[ashu@mobi-dockerserver ~]$ kubectl  get svc  -n argocd 
+NAME                                      TYPE        CLUSTER-IP       EXTERNAL-IP   PORT(S)                      AGE
+argocd-applicationset-controller          ClusterIP   10.102.122.188   <none>        7000/TCP,8080/TCP            9h
+argocd-dex-server                         ClusterIP   10.106.178.206   <none>        5556/TCP,5557/TCP,5558/TCP   9h
+argocd-metrics                            ClusterIP   10.106.133.49    <none>        8082/TCP                     9h
+argocd-notifications-controller-metrics   ClusterIP   10.101.120.24    <none>        9001/TCP                     9h
+argocd-redis                              ClusterIP   10.110.90.174    <none>        6379/TCP                     9h
+argocd-repo-server                        ClusterIP   10.111.106.21    <none>        8081/TCP,8084/TCP            9h
+argocd-server                             NodePort    10.102.98.22     <none>        80:31936/TCP,443:31935/TCP   9h
+argocd-server-metrics                     ClusterIP   10.106.152.164   <none>        8083/TCP                     9h
+[ashu@mobi-dockerserver ~]$ kubectl  get secret   -n argocd 
+
+
+[ashu@mobi-dockerserver ~]$ kubectl  get secret   -n argocd 
+NAME                                        TYPE     DATA   AGE
+argocd-initial-admin-secret                 Opaque   1      9h
+argocd-notifications-secret                 Opaque   0      9h
+argocd-secret                               Opaque   5      9h
+cluster-kubernetes.default.svc-3396314289   Opaque   3      8h
+[ashu@mobi-dockerserver ~]$ kubectl describe  secret argocd-initial-admin-secret   -n argocd 
+Name:         argocd-initial-admin-secret
+Namespace:    argocd
+Labels:       <none>
+Annotations:  <none>
+
+Type:  Opaque
+
+Data
+====
+password:  16 bytes
+[ashu@mobi-dockerserver ~]$ kubectl get   secret argocd-initial-admin-secret -o yaml   -n argocd 
+
+
+
+
+
+
+
+[ashu@mobi-dockerserver ~]$ kubectl get   secret argocd-initial-admin-secret -o yaml   -n argocd 
+apiVersion: v1
+data:
+  password: M1RwTEk2UTNOV3dGVnpHUg==
+kind: Secret
+metadata:
+  creationTimestamp: "2022-09-21T05:20:27Z"
+  name: argocd-initial-admin-secret
+  namespace: argocd
+  resourceVersion: "316888"
+  uid: 243f6c40-06a0-4405-9dbb-5fd5bf610026
+type: Opaque
+[ashu@mobi-dockerserver ~]$ 
+[ashu@mobi-dockerserver ~]$ 
+[ashu@mobi-dockerserver ~]$ echo "M1RwTEk2UTNOV3dGVnpHUg=="  |  base64 -d
+3TpLI6Q3NWwFVzGR[ashu@mobi-dockerserver ~]$ 
+[ashu@mobi-dockerserver ~]$ 
+[ashu@mobi-dockerserver ~]$ 
+
+
+```
+
+
 
 
