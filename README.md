@@ -421,3 +421,72 @@ ashuimg-secret   kubernetes.io/dockerconfigjson   1      152m
 [ashu@mobi-dockerserver storage-k8s]$ 
 ```
 
+### creating Deployment of Db 
+
+```
+kubectl create deployment ashu-db --image=mysql:5.6 --port 3306 --dry-run=client -o yaml >db-deploy.yaml 
+```
+
+### updated YAML 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-db
+  name: ashu-db
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-db
+  strategy: {}
+  template: # for creating db pods 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-db
+    spec:
+      volumes: # creating volume 
+      - name: ashudb-vol # name of volume 
+        persistentVolumeClaim: # taking from PVC 
+          claimName: ashu-pv-claim-nfs # claimName 
+      containers:
+      - image: mysql:5.6
+        name: mysql
+        ports:
+        - containerPort: 3306
+        volumeMounts: # attaching volume to db pod 
+        - name: ashudb-vol
+          mountPath: /var/lib/mysql/ # default location to store databases 
+        env: # to create / update values 
+        - name: MYSQL_DATABASE
+          valueFrom: # reading value from somewhere 
+            configMapKeyRef: 
+              name: ashu-db-cm  # name of cm
+              key: dbname # key of cm 
+        - name: MYSQL_ROOT_PASSWORD
+          valueFrom:
+            secretKeyRef: 
+              name: ashudb-pass # name of secret 
+              key: dbpassword # key of secret 
+        resources: {}
+status: {}
+
+```
+
+### deploy it 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl apply -f db-deploy.yaml 
+deployment.apps/ashu-db configured
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  deploy 
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-db   1/1     1            1           17s
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  po 
+NAME                       READY   STATUS    RESTARTS   AGE
+ashu-db-7cc5995569-v6qhl   1/1     Running   
+```
+
