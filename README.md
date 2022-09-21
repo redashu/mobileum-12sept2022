@@ -603,5 +603,124 @@ ashu-db-server   ClusterIP   10.98.224.128   <none>        3306/TCP       114m
 
 ```
 
+### Introduction to Helm 
+
+<img src="helm.png">
+
+### fixing kubeconfig permission for helm  v3 
+
+```
+[jorge@mobi-dockerserver ~]$ helm version 
+WARNING: Kubernetes configuration file is group-readable. This is insecure. Location: /home/jorge/.kube/config
+WARNING: Kubernetes configuration file is world-readable. This is insecure. Location: /home/jorge/.kube/config
+version.BuildInfo{Version:"v3.10.0-rc.1", GitCommit:"ce66412a723e4d89555dc67217607c6579ffcb21", GitTreeState:"clean", GoVersion:"go1.18.6"}
+[jorge@mobi-dockerserver ~]$ chmod  400 ~/.kube/config 
+[jorge@mobi-dockerserver ~]$ helm version 
+version.BuildInfo{Version:"v3.10.0-rc.1", GitCommit:"ce66412a723e4d89555dc67217607c6579ffcb21", GitTreeState:"clean", GoVersion:"go1.18.6"}
+[jorge@mobi-dockerserver ~]$ 
+
+```
+
+### searching packages in artifcats HUB 
+
+```
+ 1001  helm search hub 
+ 1002  history 
+ 1003  helm search hub wordpress
+ 1004* history
+ 1005  helm search hub nginx 
+
+```
+
+### adding repo in helm client 
+
+```
+[ashu@mobi-dockerserver ~]$ helm repo add bitnami https://charts.bitnami.com/bitnami
+"bitnami" has been added to your repositories
+[ashu@mobi-dockerserver ~]$ 
+[ashu@mobi-dockerserver ~]$ helm repo ls
+NAME   	URL                               
+bitnami	https://charts.bitnami.com/bitnami
+[ashu@mobi-dockerserver ~]$ 
+
+
+```
+
+### deploy nginx image using helm 
+
+```
+[ashu@mobi-dockerserver ~]$ helm repo ls
+NAME   	URL                               
+bitnami	https://charts.bitnami.com/bitnami
+[ashu@mobi-dockerserver ~]$ 
+[ashu@mobi-dockerserver ~]$ helm install ashu-nginx-app  bitnami/nginx 
+NAME: ashu-nginx-app
+LAST DEPLOYED: Wed Sep 21 14:05:39 2022
+NAMESPACE: ashu-project
+STATUS: deployed
+REVISION: 1
+TEST SUITE: None
+NOTES:
+CHART NAME: nginx
+CHART VERSION: 13.2.6
+APP VERSION: 1.23.1
+
+** Please be patient while the chart is being deployed **
+NGINX can be accessed through the following DNS name from within your cluster:
+
+    ashu-nginx-app.ashu-project.svc.cluster.local (port 80)
+
+To access NGINX from outside the cluster, follow the steps below:
+
+1. Get the NGINX URL by running these commands:
+
+  NOTE: It may take a few minutes for the LoadBalancer IP to be available.
+        Watch the status with: 'kubectl get svc --namespace ashu-project -w ashu-nginx-app'
+
+    export SERVICE_PORT=$(kubectl get --namespace ashu-project -o jsonpath="{.spec.ports[0].port}" services ashu-nginx-app)
+    export SERVICE_IP=$(kubectl get svc --namespace ashu-project ashu-nginx-app -o jsonpath='{.status.loadBalancer.ingress[0].ip}')
+    echo "http://${SERVICE_IP}:${SERVICE_PORT}"
+[ashu@mobi-dockerserver ~]$ 
+
+```
+
+### verify it 
+
+```
+[ashu@mobi-dockerserver ~]$ kubectl  get  deploy 
+NAME             READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-nginx-app   1/1     1            1           62s
+[ashu@mobi-dockerserver ~]$ kubectl  get  rs
+NAME                        DESIRED   CURRENT   READY   AGE
+ashu-nginx-app-65c47dc9c4   1         1         1       73s
+[ashu@mobi-dockerserver ~]$ kubectl  get  po
+NAME                              READY   STATUS    RESTARTS   AGE
+ashu-nginx-app-65c47dc9c4-tkgd7   1/1     Running   0          76s
+[ashu@mobi-dockerserver ~]$ kubectl  get  svc
+NAME             TYPE           CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+ashu-nginx-app   LoadBalancer   10.111.78.137   <pending>     80:30333/TCP   78s
+```
+
+### pulling helm chart and check it 
+
+```
+ 1019  helm pull  bitnami/nginx 
+ 1020  ls
+ 1021  tar xvzf nginx-13.2.6.tgz 
+ 1022  history 
+[ashu@mobi-dockerserver ~]$ ls
+deployment.yaml  hpa.yaml      kubectl   nginx             serviceaccount.yaml
+hello.java       ingress.yaml  myimages  nginx-13.2.6.tgz  service.yaml
+[ashu@mobi-dockerserver ~]$ cd  nginx/
+[ashu@mobi-dockerserver nginx]$ ls
+Chart.lock  charts  Chart.yaml  README.md  templates  values.schema.json  values.yaml
+[ashu@mobi-dockerserver nginx]$ ls templates/
+deployment.yaml      _helpers.tpl  NOTES.txt             server-block-configmap.yaml  svc.yaml
+extra-list.yaml      hpa.yaml      pdb.yaml              serviceaccount.yaml          tls-secrets.yaml
+health-ingress.yaml  ingress.yaml  prometheusrules.yaml  servicemonitor.yaml
+[ashu@mobi-dockerserver nginx]$ 
+
+```
+
 
 
