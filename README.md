@@ -585,5 +585,23 @@ ashu-webapp   1/1     1            1           18s
 
 <img src="db4.png">
 
+### creating svc 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-db       1/1     1            1           124m
+ashu-webapp   1/1     1            1           13m
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  expose deployment ashu-webapp --type NodePort --port 80 --name ashu-app-svc --dry-run=client -o yaml >web-svc.yaml 
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  apply -f web-svc.yaml 
+service/ashu-app-svc created
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  svc
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)        AGE
+ashu-app-svc     NodePort    10.100.60.229   <none>        80:30276/TCP   3s
+ashu-db-server   ClusterIP   10.98.224.128   <none>        3306/TCP       114m
+[ashu@mobi-dockerserver storage-k8s]$ 
+
+```
+
 
 
