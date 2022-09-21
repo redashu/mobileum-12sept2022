@@ -317,4 +317,9 @@ info.txt
 hello i am 192.168.135.62
 /mnt/logs # 
 ```
+### PV/PVC --Deployment -- 
+
+<img src="concept.png">
+
+
 
