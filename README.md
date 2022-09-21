@@ -510,5 +510,76 @@ ashu-db-server   ClusterIP   10.98.224.128   <none>        3306/TCP   3s
 
 <img src="str.png">
 
+### Now creating webapp deployment 
+
+### Deployment file 
+
+```
+kubectl  create deployment ashu-webapp --image=wordpress:4.8-apache  --port  80 --dry-run=client -o yaml >webapp-deploy.yaml 
+```
+### updating yAML 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashu-webapp
+  name: ashu-webapp
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashu-webapp
+  strategy: {}
+  template:
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashu-webapp
+    spec:
+      containers:
+      - image: wordpress:4.8-apache
+        name: wordpress
+        ports:
+        - containerPort: 80
+        env: # to connection DB from webapp 
+        - name: WORDPRESS_DB_PASSWORD # db root password 
+          valueFrom:
+            secretKeyRef:
+              name: ashudb-pass
+              key: dbpassword
+        - name: WORDPRESS_DB_HOST # hostname of DB 
+          value: ashu-db-server # service name of DB deployment 
+        - name: WORDPRESS_DB_NAME # db name to connect 
+          valueFrom:
+            configMapKeyRef:
+              name: ashu-db-cm
+              key: dbname
+        resources: {}
+status: {}
+
+```
+
+### deloy it 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  apply -f webapp-deploy.yaml 
+deployment.apps/ashu-webapp created
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-db       1/1     1            1           111m
+ashu-webapp   0/1     1            0           7s
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  po
+NAME                           READY   STATUS    RESTARTS   AGE
+ashu-db-7cc5995569-v6qhl       1/1     Running   0          111m
+ashu-webapp-86c975b779-hnftg   1/1     Running   0          14s
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  deploy 
+NAME          READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-db       1/1     1            1           111m
+ashu-webapp   1/1     1            1           18s
+```
+
 
 
