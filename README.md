@@ -490,3 +490,25 @@ NAME                       READY   STATUS    RESTARTS   AGE
 ashu-db-7cc5995569-v6qhl   1/1     Running   
 ```
 
+### creating service of clusterIP for db endpoint or host purpose 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  deploy 
+NAME      READY   UP-TO-DATE   AVAILABLE   AGE
+ashu-db   1/1     1            1           9m47s
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  expose deployment ashu-db --type ClusterIP --port 3306 --name ashu-db-server --dry-run=client -o yaml >db-svc.yaml 
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  apply -f db-svc.yaml 
+service/ashu-db-server created
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  svc 
+NAME             TYPE        CLUSTER-IP      EXTERNAL-IP   PORT(S)    AGE
+ashu-db-server   ClusterIP   10.98.224.128   <none>        3306/TCP   3s
+[ashu@mobi-dockerserver storage-k8s]$ 
+
+```
+
+### dB connection string understanding 
+
+<img src="str.png">
+
+
+
