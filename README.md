@@ -396,4 +396,28 @@ ashu-pv-claim-nfs   Bound    ashu-pv-nfs   7Gi        RWO            manual     
 [ashu@mobi-dockerserver storage-k8s]$ 
 ```
 
+### creating configMap to store DBname info 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  create cm ashu-db-cm --from-literal dbname=ashudb --dry-run=client -o yaml >dbcm.yaml
+[ashu@mobi-dockerserver storage-k8s]$ kubectl apply -f dbcm.yaml 
+configmap/ashu-db-cm created
+[ashu@mobi-dockerserver storage-k8s]$ kubectl get  cm 
+NAME               DATA   AGE
+ashu-db-cm         1      4s
+kube-root-ca.crt   1      22h
+```
+
+### creating sercret to store DBroot password info 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  create secret generic  ashudb-pass --from-literal dbpassword="Db@098#"  --dry-run=client -o yaml >rootsecret.yaml 
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  apply -f rootsecret.yaml 
+secret/ashudb-pass created
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get secret
+NAME             TYPE                             DATA   AGE
+ashudb-pass      Opaque                           1      6s
+ashuimg-secret   kubernetes.io/dockerconfigjson   1      152m
+[ashu@mobi-dockerserver storage-k8s]$ 
+```
 
