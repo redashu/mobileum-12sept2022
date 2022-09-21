@@ -179,3 +179,132 @@ ashulb1   NodePort   10.108.120.59   <none>        80:32517/TCP   3s
 
 <img src="pvc.png">
 
+## Demo to understand PV and PVC 
+
+### PV YAML 
+
+apiVersion: v1
+kind: PersistentVolume
+metadata:
+  name: ashu-pv-volume # name of pv 
+  labels: # label of pv 
+    type: ashu-pv 
+spec:
+  storageClassName: manual # we are creating pv manually 
+  capacity:
+    storage: 5Gi # 3Gi -range - 10Gi 
+  accessModes: # how to use these pv by Nodes 
+    - ReadWriteMany # RWO , RWM , ROM 
+  hostPath: # from inside k8s nodes 
+    path: "/mnt/ashu-data" # this folder will be created if not present
+    type: DirectoryOrCreate # if not present then create it ```
+
+```
+
+### creating it 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl apply -f demo-pv.yaml 
+persistentvolume/ashu-pv-volume created
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  pv
+NAME              CAPACITY   ACCESS MODES   RECLAIM POLICY   STATUS      CLAIM   STORAGECLASS   REASON   AGE
+ashu-pv-volume    5Gi        RWX            Retain           Available           manual                  37s
+atul-pv-volume    3Gi        RWO            Retain           Available           manual                  11s
+fjv-pv-volume     3Gi        RWO            Retain           Available           manual                  30s
+nuno-pv-volume    3Gi        RWX            Retain           Available           manual                  11s
+sofia-pv-volume   9Gi        RWX            Retain           Available           manual                  24s
+```
+
+### creating PVC 
+
+```
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: ashu-pv-claim
+spec:
+  storageClassName: manual
+  accessModes:
+    - ReadWriteMany
+  resources:
+    requests:
+      storage: 3Gi # size we need 
+```
+
+### deploy it 
+
+```
+ashu@mobi-dockerserver storage-k8s]$ kubectl  apply -f demo-pvc.yaml 
+persistentvolumeclaim/ashu-pv-claim created
+[ashu@mobi-dockerserver storage-k8s]$ kubectl get  pvc
+NAME            STATUS   VOLUME            CAPACITY   ACCESS MODES   STORAGECLASS   AGE
+ashu-pv-claim   Bound    vasco-pv-volume   3Gi        RWX            manual         8s
+[ashu@mobi-dockerserver storage-k8s]$ 
+
+```
+
+### creating deployment 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  create deployment ashutest --image=alpine --dry-run=client   -o yaml >demo-deploy.yaml 
+```
+
+### Deployment YAML with pvc and volume 
+
+```
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  creationTimestamp: null
+  labels:
+    app: ashutest
+  name: ashutest
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: ashutest
+  strategy: {}
+  template: # template 
+    metadata:
+      creationTimestamp: null
+      labels:
+        app: ashutest
+    spec:
+      nodeName: node3 # checking with static scheduling 
+      volumes: # creating volume 
+      - name: ashuvol-999
+        persistentVolumeClaim: # taking storage from PVC 
+          claimName: ashu-pv-claim # name of your pvc 
+      containers:
+      - image: alpine
+        name: alpine
+        volumeMounts:  # mounting volume inside container 
+        - name: ashuvol-999
+          mountPath: /mnt/logs/
+        command: ['/bin/sh','-c','while true;do echo "hello i am `hostname -i`" >/mnt/logs/info.txt;sleep 20;done']
+        resources: {}
+status: {}
+
+```
+
+### deploy it 
+
+```
+[ashu@mobi-dockerserver storage-k8s]$ kubectl apply -f demo-deploy.yaml 
+deployment.apps/ashutest created
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  deploy 
+NAME       READY   UP-TO-DATE   AVAILABLE   AGE
+ashutest   1/1     1            1           8s
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  get  po
+NAME                        READY   STATUS    RESTARTS   AGE
+ashutest-5785466d45-rtd2j   1/1     Running   0          12s
+[ashu@mobi-dockerserver storage-k8s]$ kubectl  exec -it ashutest-5785466d45-rtd2j -- sh 
+/ # cd /mnt/logs/
+/mnt/logs # ls
+info.txt
+/mnt/logs # cat info.txt 
+hello i am 192.168.135.62
+/mnt/logs # 
+```
+
